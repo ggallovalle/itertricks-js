@@ -6,13 +6,16 @@
   "directories": {
     "lib": "lib"
   },
-  "scripts": {
-    "test": "jest"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ggallovalle/itertricks-js.git"
   },
+  "author": "Gerson Gallo <ggallovalle@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ggallovalle/itertricks-js/issues"
+  },
+  "homepage": "https://github.com/ggallovalle/itertricks-js#readme",
   "keywords": [
     "iterator",
     "iteration",
@@ -24,10 +27,14 @@
     "filter",
     "reduce"
   ],
-  "author": "Gerson Gallo <ggallovalle@gmail.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/ggallovalle/itertricks-js/issues"
+  "scripts": {
+    "test": "jest"
   },
-  "homepage": "https://github.com/ggallovalle/itertricks-js#readme"
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^16.10.2",
+    "gulp": "^4.0.2",
+    "ts-node": "^10.2.1",
+    "typescript": "^4.4.3"
+  }
 }
