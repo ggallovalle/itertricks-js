@@ -1,0 +1,33 @@
+{
+  "name": "itertricks",
+  "version": "0.0.1",
+  "description": "Iterator utilities for a happy and peaceful life.",
+  "main": "lib/index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ggallovalle/itertricks-js.git"
+  },
+  "keywords": [
+    "iterator",
+    "iteration",
+    "functional",
+    "collection",
+    "array",
+    "map",
+    "set",
+    "filter",
+    "reduce"
+  ],
+  "author": "Gerson Gallo <ggallovalle@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ggallovalle/itertricks-js/issues"
+  },
+  "homepage": "https://github.com/ggallovalle/itertricks-js#readme"
+}
