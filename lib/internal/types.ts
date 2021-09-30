@@ -1,5 +1,6 @@
 // TODO I think there is an error in TypeScript type system, id does not
 //  let me pass a single argument to `iterator.next` function
+/** @internal */
 export type SafeGenerator<T, TNext = undefined, TReturn = any> = Generator<
   T,
   TReturn,

@@ -1,6 +1,16 @@
 import { InfiniteLoopError } from "./internal/errors";
 
-export function* newIterator<T>(
+/**
+ * Returns a Generator defined by the starting value `seed`.
+ *
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ *
+ * @param seed
+ * @param f
+ */
+export function* newGenerator<T>(
   seed: T,
   f: (a: T) => T | null
 ): Generator<T, any, undefined> {
@@ -13,11 +23,21 @@ export function* newIterator<T>(
 
 /**
  * Starting from `0` until `stop`.
+ *
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ *
  * @param stop
  */
 export function range(stop: number): Generator<number>;
 /**
  * Starting from `start` until `stop`, with `step`.
+ *
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ *
  * @param start
  * @param stop
  * @param [step=1] - the value of step parameter.

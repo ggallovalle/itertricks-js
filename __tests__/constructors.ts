@@ -1,11 +1,11 @@
-import { newIterator, range, take } from "../lib";
+import { newGenerator, range, take } from "../lib";
 import len, { first, last, nth } from "../lib/internal/len";
 import { InfiniteLoopError } from "../lib/internal/errors";
 
 describe("itertricks.constructors", () => {
-  describe("newIterator", () => {
+  describe("newGenerator", () => {
     test("infinite iterator", () => {
-      const sut = newIterator(1, (x) => x + 1);
+      const sut = newGenerator(1, (x) => x + 1);
       const actual = [...take(5, sut)];
       expect(len(actual)).toBe(5);
       expect(first(actual)).toBe(1);
@@ -13,7 +13,7 @@ describe("itertricks.constructors", () => {
     });
 
     test("finite iterator", () => {
-      const sut = newIterator(1, (x) => (x < 8 ? x + 2 : null));
+      const sut = newGenerator(1, (x) => (x < 8 ? x + 2 : null));
       const actual = [...sut];
       expect(len(actual)).toBe(5);
       expect(first(actual)).toBe(1);
@@ -22,7 +22,7 @@ describe("itertricks.constructors", () => {
     });
 
     test("when `seed=null` actual MUST be empty", () => {
-      const sut = newIterator(null, () => null);
+      const sut = newGenerator(null, () => null);
       const actual = [...sut];
       expect(len(actual)).toBe(0);
     });
