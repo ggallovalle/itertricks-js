@@ -1,2 +1,2 @@
 export { take, chunked, windowed } from "./parts";
-export { range } from "./range";
+export { range, newIterator } from "./constructors";
