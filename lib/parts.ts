@@ -1,3 +1,5 @@
+import { isIterable } from "./internal/is";
+
 /**
  * Take the first `n` elements out of iterable.
  *
@@ -9,8 +11,6 @@
  *
  * @param n
  */
-import { isIterable } from "./internal/is";
-
 export function take(n: number): <T>(source: Iterable<T>) => Generator<T>;
 /**
  * Take the first `n` elements out of iterable.
@@ -21,16 +21,24 @@ export function take(n: number): <T>(source: Iterable<T>) => Generator<T>;
  * @since 1.0.0
  * @version 1.0.0
  *
- * @param n
  * @param source
+ * @param n
  */
-export function take<T>(n: number, source: Iterable<T>): Generator<T>;
-export function take<T>(n: number, source?: Iterable<T>): any {
+export function take<T>(source: Iterable<T>, n: number): Generator<T>;
+export function take<T>(x: any, y?: any): any {
+  let n: number;
+  let source: Iterable<T> | null = null;
+  if (isIterable(x)) {
+    source = x;
+    n = y;
+  } else {
+    n = x;
+  }
   let counter = 0;
   const logic = function* (s: Iterable<T>) {
-    for (const x of s) {
+    for (const element of s) {
       counter++;
-      yield x;
+      yield element;
       if (counter === n) {
         break;
       }
@@ -67,19 +75,27 @@ export function chunked(
  * @since 1.0.0
  * @version 1.0.0
  *
- * @param size - the number of elements to take in each list.
  * @param source
+ * @param size - the number of elements to take in each list.
  * @throws {RangeError} - when `size` <= 0
  */
-export function chunked<T>(size: number, source: Iterable<T>): Generator<T[]>;
-export function chunked<T>(size: number, source?: Iterable<T>): any {
+export function chunked<T>(source: Iterable<T>, size: number): Generator<T[]>;
+export function chunked<T>(x: any, y?: any): any {
+  let size: number;
+  let source: Iterable<T> | null = null;
+  if (isIterable(x)) {
+    source = x;
+    size = y;
+  } else {
+    size = x;
+  }
   if (size <= 0) throw new RangeError("`size` MUST be >= 0");
   let counter = 0;
   let accumulator: T[] = [];
   const logic = function* (s: Iterable<T>) {
-    for (const x of s) {
+    for (const element of s) {
       counter++;
-      accumulator.push(x);
+      accumulator.push(element);
       if (counter == size) {
         yield accumulator;
         counter = 0;
@@ -130,30 +146,35 @@ export function windowed(
  * @since 1.0.0
  * @version 1.0.0
  *
- * @param size - the number of elements to take in each window.
  * @param source
- * @param options
- * @param [options.step=1] - the number of elements to move the window forward by on each step.
- * @param [options.partialWindow=false] - controls weather or not to keep partial window.
+ * @param size - the number of elements to take in each window.
+ * @param options?
+ * @param [options?.partialWindow=false] - controls weather or not to keep partial window.
+ * @param [options?.step=1] - the number of elements to move the window forward by on each step.
  */
 export function windowed<T>(
-  size: number,
   source: Iterable<T>,
+  size: number,
   options?: { step?: number; partialWindow?: boolean }
 ): Generator<T[]>;
-export function windowed<T>(size: number, source?: any, options?: any): any {
-  if (isIterable(source)) {
+export function windowed<T>(x: any, y?: any, options?: any): any {
+  let size: number;
+  let source: Iterable<T> | null = null;
+  if (isIterable(x)) {
+    source = x;
+    size = y;
     options = { ..._windowedDefaultOptions, ...options };
   } else {
-    options = { ..._windowedDefaultOptions, ...source };
+    size = x;
+    options = { ..._windowedDefaultOptions, ...y };
   }
   const logic = function* (s: Iterable<T>) {
     let counter = 0;
     let accumulator: T[] = [];
 
-    for (const x of s) {
+    for (const element of s) {
       counter++;
-      accumulator.push(x);
+      accumulator.push(element);
       if (counter === size) {
         yield accumulator;
         counter = counter - (options.step ?? 0);

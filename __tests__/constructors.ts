@@ -6,7 +6,7 @@ describe("itertricks.constructors", () => {
   describe("newGenerator", () => {
     test("infinite iterator", () => {
       const sut = newGenerator(1, (x) => x + 1);
-      const actual = [...take(5, sut)];
+      const actual = [...take(sut, 5)];
       expect(len(actual)).toBe(5);
       expect(first(actual)).toBe(1);
       expect(last(actual)).toBe(5);

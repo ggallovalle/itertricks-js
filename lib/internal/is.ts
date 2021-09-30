@@ -2,6 +2,10 @@ export function isNotNull(source: unknown): source is any {
   return source != null;
 }
 
+export function isNumber(source: unknown): source is number {
+  return isNotNull(source) && typeof source === "number";
+}
+
 export function isArray(source: unknown): source is Array<any> {
   return isNotNull(source) && Array.isArray(source);
 }
