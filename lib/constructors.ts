@@ -3,6 +3,8 @@ import { InfiniteLoopError } from "./internal/errors";
 /**
  * Returns a Generator defined by the starting value `seed`.
  *
+ * @category constructor
+ *
  * @public
  * @since 1.0.0
  * @version 1.0.0
@@ -24,6 +26,8 @@ export function* newGenerator<T>(
 /**
  * Starting from `0` until `stop`.
  *
+ * @category constructor
+ *
  * @public
  * @since 1.0.0
  * @version 1.0.0
@@ -33,6 +37,8 @@ export function* newGenerator<T>(
 export function range(stop: number): Generator<number>;
 /**
  * Starting from `start` until `stop`, with `step`.
+ *
+ * @category constructor
  *
  * @public
  * @since 1.0.0

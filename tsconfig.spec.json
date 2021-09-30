@@ -12,6 +12,6 @@
       "jest",
       // "jest-extended",
     ], /* Specify type package names to be included without being referenced in a source file. */
-    "outDir": "./dist/out-tsc"
+//    "outDir": "./dist/out-tsc"
   }
 }

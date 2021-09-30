@@ -1,4 +1,6 @@
 node_modules/*
 tags
 .idea/*
+dist/*
+docs/*
 

@@ -1,6 +1,8 @@
 /**
  * Take the first `n` elements out of iterable.
  *
+ * @category parts
+ *
  * @public
  * @since 1.0.0
  * @version 1.0.0
@@ -21,6 +23,8 @@ export function* take<T>(n: number, source: Iterable<T>): Generator<T> {
 
 /**
  * Splits the `source` into an array of arrays, each not exiding the given `size`.
+ *
+ * @category parts
  *
  * @public
  * @since 1.0.0
@@ -54,6 +58,8 @@ const _windowedDefaultOptions = {
  *
  * Returns an iterable of snapshots of the window of the given `size` sliding
  * along the `source` with the given `opts.step`, where each snapshot is an array.
+ *
+ * @category parts
  *
  * @public
  * @since 1.0.0
