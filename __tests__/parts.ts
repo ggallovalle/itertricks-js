@@ -1,7 +1,9 @@
 import { chunked, take, windowed, range } from "../lib";
 import len from "../lib/internal/len";
+import { pipe } from "../lib/internal/functools";
+import { asArray } from "../lib/internal/collectors";
 
-describe("genetrix.parts", () => {
+describe("itertricks.parts", () => {
   describe("take", () => {
     test("`n=2` returns 2 elements", () => {
       const source = range(3);
@@ -13,6 +15,12 @@ describe("genetrix.parts", () => {
     test("`n` > `source`.length returns all source", () => {
       const source = range(3);
       const actual = [...take(1000, source)];
+      expect(actual.length).toBe(4);
+      expect(actual).toEqual([0, 1, 2, 3]);
+    });
+
+    test("curried version", () => {
+      const actual = pipe(range(3), take(1000), asArray);
       expect(actual.length).toBe(4);
       expect(actual).toEqual([0, 1, 2, 3]);
     });
@@ -48,6 +56,12 @@ describe("genetrix.parts", () => {
         const res = [...chunked(0, sut)];
       }).toThrow(RangeError);
     });
+
+    test("curried version", () => {
+      const res = pipe(range(2), chunked(1000), asArray);
+      expect(res.length).toBe(1);
+      expect(res[0]).toEqual([0, 1, 2]);
+    });
   });
 
   describe("windowed", () => {
@@ -70,6 +84,13 @@ describe("genetrix.parts", () => {
     test("`opts.step=3`", () => {
       const source = range(1, 10);
       const actual = [...windowed(5, source, { step: 3 })];
+      expect(len(actual)).toBe(2);
+      expect(actual[0]).toEqual([1, 2, 3, 4, 5]);
+      expect(actual[1]).toEqual([4, 5, 6, 7, 8]);
+    });
+
+    test("curried", () => {
+      const actual = pipe(range(1, 10), windowed(5, { step: 3 }), asArray);
       expect(len(actual)).toBe(2);
       expect(actual[0]).toEqual([1, 2, 3, 4, 5]);
       expect(actual[1]).toEqual([4, 5, 6, 7, 8]);
