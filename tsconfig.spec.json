@@ -2,14 +2,15 @@
   "extends": "./tsconfig.json",
   "include": [
     "**/__tests__/**.ts",
+    "**/lib/**/*.ts",
   ],
   "compilerOptions": {
-    // "composite": true,
+    "composite": true,
     "module": "CommonJS",
     "types": [
       "node",
       "jest",
-      "jest-extended",
+      // "jest-extended",
     ], /* Specify type package names to be included without being referenced in a source file. */
     "outDir": "./dist/out-tsc"
   }
