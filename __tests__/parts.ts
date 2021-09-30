@@ -1,5 +1,4 @@
-import { chunked, take, windowed } from "../lib/parts";
-import { range } from "../lib/range";
+import { chunked, take, windowed, range } from "../lib";
 import len from "../lib/internal/len";
 
 describe("genetrix.parts", () => {

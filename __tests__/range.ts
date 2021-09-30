@@ -1,4 +1,5 @@
-import { InfiniteLoopError, range } from "../lib/range";
+import { range } from "../lib";
+import { InfiniteLoopError } from "../lib/internal/errors";
 
 describe("genetrix.range", () => {
   describe("range", () => {
