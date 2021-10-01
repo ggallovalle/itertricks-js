@@ -43,7 +43,7 @@ async function docsServe() {
   // return concurrently(["npm:docs:watch"]);
   return concurrently([
     {
-      command: "npx typedoc --watch",
+      command: "npx typedoc --watch --preserveWatchOutput",
       name: "typedoc",
     },
     {

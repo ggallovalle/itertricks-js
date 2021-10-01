@@ -37,11 +37,11 @@ export function take<T>(x: any, y?: any): any {
   let counter = 0;
   const logic = function* (s: Iterable<T>) {
     for (const element of s) {
-      counter++;
-      yield element;
       if (counter === n) {
         break;
       }
+      counter++;
+      yield element;
     }
   };
   if (source != null) {

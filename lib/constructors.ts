@@ -1,7 +1,10 @@
 import { InfiniteLoopError } from "./internal/errors";
 
 /**
- * Returns a Generator defined by the starting value `seed`.
+ * Returns a Generator defined by the starting value `seed` and the function `f` which
+ *is invoked to calculate the next value based on the previous one on each iteration.
+ *
+ * When `f` returns null, the iteration is finite, otherwise is infinite. Or not or yes.
  *
  * @category constructor
  *
@@ -54,7 +57,11 @@ export function range(
   stop: number,
   step?: number
 ): Generator<number>;
-export function* range(start: number, stop?: number, step: number = 1) {
+export function* range(
+  start: number,
+  stop?: number,
+  step: number = 1
+): Generator<number> {
   if (stop == null) {
     stop = start;
     start = 0;
@@ -76,5 +83,25 @@ export function* range(start: number, stop?: number, step: number = 1) {
     throw new InfiniteLoopError(
       "With a `step=0` you will have an infinite loop"
     );
+  }
+}
+
+/**
+ * Count infinitely from `start` with evenly spaced `step`.
+ *
+ * @category constructor
+ *
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ *
+ * @param [start=0]
+ * @param [step=1]
+ */
+export function* count(start: number = 0, step: number = 1): Generator<number> {
+  let counter = start;
+  while (true) {
+    yield counter;
+    counter += step;
   }
 }
