@@ -4,12 +4,43 @@ import { InfiniteLoopError } from "../lib/internal/errors";
 
 describe("itertricks.constructors", () => {
   describe("newGenerator", () => {
-    test("infinite iterator", () => {
-      const sut = newGenerator(1, (x) => x + 1);
-      const actual = [...take(sut, 5)];
-      expect(len(actual)).toBe(5);
-      expect(first(actual)).toBe(1);
-      expect(last(actual)).toBe(5);
+    describe("Scenario: Infinite iterable", () => {
+      type newGeneratorTestCases<T> = {
+        params: [seed: T, f: (a: T) => T | null];
+        facts: {
+          len: number;
+          first: number;
+          last: number;
+        };
+        others: {
+          taking: number;
+        };
+      };
+      test.each<newGeneratorTestCases<number>>([
+        {
+          params: [1, (x) => x + 1],
+          others: {
+            taking: 5,
+          },
+          facts: {
+            len: 5,
+            first: 1,
+            last: 5,
+          },
+        },
+      ])(
+        `When: Seed is $params
+          Then: len is $facts.len
+          And: first is $facts.len
+          And: last is $facts.last`,
+        ({ params, facts, others }) => {
+          const sut = newGenerator(...params);
+          const actual = [...take(sut, others.taking)];
+          expect(len(actual)).toBe(facts.len);
+          expect(first(actual)).toBe(facts.first);
+          expect(last(actual)).toBe(facts.last);
+        }
+      );
     });
 
     test("finite iterator", () => {
