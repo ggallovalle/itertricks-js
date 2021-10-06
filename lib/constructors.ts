@@ -105,3 +105,17 @@ export function* count(start: number = 0, step: number = 1): Generator<number> {
     counter += step;
   }
 }
+
+export function* cycle<T>(source: Iterable<T>): Generator<T> {
+  const saved = [];
+  for (const element of source) {
+    yield element;
+    saved.push(element);
+  }
+
+  while (saved.length > 0) {
+    for (const element of saved) {
+      yield element;
+    }
+  }
+}

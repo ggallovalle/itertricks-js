@@ -2,6 +2,9 @@ import { count, newGenerator, range, take } from "../lib";
 import len, { first, last, nth } from "../lib/internal/len";
 import { InfiniteLoopError } from "../lib/internal/errors";
 import { isIterable, isNotNull } from "../lib/internal/is";
+import { pipe } from "../lib/internal/functools";
+import { cycle } from "../lib/constructors";
+import { asArray, asCount } from "../lib/internal/collectors";
 
 describe("Feature: newGenerator", () => {
   describe("Scenario: Infinite iterable", () => {
@@ -111,49 +114,44 @@ describe("Feature: range", () => {
 describe("Feature: count", () => {
   describe("Scenario: make it finite", () => {
     type countTestCases<T> = {
-      params: [start: number, step?: number] | null;
-      facts: {
+      then: {
         len: number;
         first: T;
         last: T;
-        nth: {
-          x: number;
-          expected: T;
-        };
+        nth: number;
       };
-      others: {
+      when: {
+        start?: number;
+        step?: number;
         taking: number;
+        nth: T;
       };
     };
     test.each<countTestCases<number>>([
       {
-        params: null,
-        facts: {
+        when: {
+          taking: 20,
+          nth: 5,
+        },
+        then: {
           len: 20,
           first: 0,
           last: 19,
-          nth: {
-            x: 5,
-            expected: 4,
-          },
-        },
-        others: {
-          taking: 20,
+          nth: 4,
         },
       },
       {
-        params: [1000, 4],
-        facts: {
+        when: {
+          taking: 5,
+          start: 1000,
+          step: 4,
+          nth: 3,
+        },
+        then: {
           len: 5,
           first: 1000,
           last: 1016,
-          nth: {
-            x: 3,
-            expected: 1008,
-          },
-        },
-        others: {
-          taking: 5,
+          nth: 1008,
         },
       },
     ])(
@@ -164,14 +162,38 @@ describe("Feature: count", () => {
         And: last is $facts.last
         And: nth is $facts.nth.expected
         `,
-      ({ params, facts, others }) => {
-        const sut = isIterable(params) ? count(...params) : count();
-        const actual = [...take(sut, others.taking)];
-        expect(len(actual)).toBe(facts.len);
-        expect(first(actual)).toBe(facts.first);
-        expect(last(actual)).toBe(facts.last);
-        expect(nth(facts.nth.x, actual)).toBe(facts.nth.expected);
+      ({ then, when }) => {
+        const sut = isNotNull(when.start)
+          ? count(when.start, when.step)
+          : count();
+        const actual = [...take(sut, when.taking)];
+        expect(len(actual)).toBe(then.len);
+        expect(first(actual)).toBe(then.first);
+        expect(last(actual)).toBe(then.last);
+        expect(nth(when.nth, actual)).toBe(then.nth);
       }
     );
+  });
+});
+
+describe("Feature: cycle", () => {
+  test("it returns to the beginning", () => {
+    const actual = pipe(count(), take(3), cycle, take(4), asArray);
+    expect(len(actual)).toBe(4);
+    expect(last(actual)).toBe(0);
+  });
+
+  test("when cycles through 5 times, then it is shown 5 times", () => {
+    const taking = 10;
+    const cycleCount = 5;
+    const actual = pipe(
+      count(),
+      take(taking),
+      cycle,
+      take(taking * cycleCount),
+      asCount((x) => x == 2)
+    );
+
+    expect(actual).toBe(cycleCount);
   });
 });
