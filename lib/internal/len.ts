@@ -6,7 +6,7 @@ export type CapacityPorter =
   | { size: number };
 
 /** @internal */
-export default function len(source: CapacityPorter): number {
+export function len(source: CapacityPorter): number {
   //@ts-expect-error either has size or length
   return source.length ?? source.size;
 }

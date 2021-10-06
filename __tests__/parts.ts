@@ -1,7 +1,6 @@
-import { chunked, take, windowed, range } from "../lib";
-import len from "../lib/internal/len";
+import { asArray, chunked, range, take, windowed } from "../lib";
+import { len } from "../lib/internal/len";
 import { pipe } from "../lib/internal/functools";
-import { asArray } from "../lib/internal/collectors";
 
 describe("itertricks.parts", () => {
   describe("take", () => {

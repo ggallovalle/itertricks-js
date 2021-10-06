@@ -1,10 +1,16 @@
-import { count, newGenerator, range, take } from "../lib";
-import len, { first, last, nth } from "../lib/internal/len";
+import {
+  asArray,
+  asCount,
+  count,
+  cycle,
+  newGenerator,
+  range,
+  take,
+} from "../lib";
+import { first, last, len, nth } from "../lib/internal/len";
 import { InfiniteLoopError } from "../lib/internal/errors";
-import { isIterable, isNotNull } from "../lib/internal/is";
+import { isNotNull } from "../lib/internal/is";
 import { pipe } from "../lib/internal/functools";
-import { cycle } from "../lib/constructors";
-import { asArray, asCount } from "../lib/internal/collectors";
 
 describe("Feature: newGenerator", () => {
   describe("Scenario: Infinite iterable", () => {

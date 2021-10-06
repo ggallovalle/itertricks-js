@@ -119,3 +119,9 @@ export function* cycle<T>(source: Iterable<T>): Generator<T> {
     }
   }
 }
+
+export function* repeat<T>(value: T): Generator<T> {
+  while (true) {
+    yield value;
+  }
+}
