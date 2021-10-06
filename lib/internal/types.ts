@@ -1,9 +1,25 @@
-// TODO I think there is an error in TypeScript type system, id does not
-//  let me pass a single argument to `iterator.next` function
-/** @internal */
-export type SafeGenerator<T, TNext = undefined, TReturn = any> = Generator<
-  T,
-  TReturn,
-  TNext
->;
-// export type SafeGenerator<T, TNext = never, TReturn = never> = Generator<T, TReturn, TNext>
+export type Predicate<T> = (element: T) => boolean;
+export type Mapper<A, B> = (element: A) => B;
+
+export type Tuple2<A, B> = [n1: A, n2: B];
+export type Zipped<A, B> = Array<Tuple2<A, B>>;
+
+export interface Semigroup<A> {
+  readonly concat: (x: A, y: A) => A;
+}
+
+export interface Monoid<A> extends Semigroup<A> {
+  readonly empty: A;
+}
+
+export interface Partitioned<E, A> {
+  /**
+   * Others, things that did not matched the predicate.
+   */
+  readonly left: E;
+
+  /**
+   * Matches, things that did matched the predicate.
+   */
+  readonly right: A;
+}

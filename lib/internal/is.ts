@@ -28,3 +28,24 @@ export function isIterable(source: unknown): source is Iterable<any> {
   }
   return false;
 }
+
+export function isGenerator(source: unknown): source is Generator<any> {
+  if (isIterable(source)) {
+    // @ts-expect-error
+    return isNotNull(source.next);
+  }
+  return false;
+}
+
+export function getIterator(source: unknown): Iterator<unknown> {
+  if (isNotNull(source)) {
+    if (isIterable(source)) {
+      return source[Symbol.iterator]();
+    }
+    if (isGenerator(source)) {
+      return source;
+    }
+  }
+
+  throw new Error(`${source} is neither an Iterable nor a Generator`);
+}
