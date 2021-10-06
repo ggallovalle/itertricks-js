@@ -1,7 +1,24 @@
-import { range, unzip, zip } from "../lib";
+import { asArray, map, range, unzip, zip } from "../lib";
 import { first, last, len } from "../lib/internal/len";
 import { Zipped } from "../lib/internal/types";
 import { pipe } from "../lib/internal/functools";
+import { add } from "../lib/internal/mathtools";
+
+describe("map", () => {
+  test("curried", () => {
+    const actual = pipe(range(1, 10), map(add()), asArray);
+    expect(len(actual)).toBe(10);
+    expect(first(actual)).toBe(2);
+    expect(last(actual)).toBe(11);
+  });
+
+  test("non curried", () => {
+    const actual = pipe(map(range(1, 10), add()), asArray);
+    expect(len(actual)).toBe(10);
+    expect(first(actual)).toBe(2);
+    expect(last(actual)).toBe(11);
+  });
+});
 
 describe("unzip", () => {
   test("zipped with contents", () => {

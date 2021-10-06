@@ -1,5 +1,33 @@
-import { Tuple2, Zipped } from "./internal/types";
+import { Mapper, Tuple2, Zipped } from "./internal/types";
 import { getIterator, isIterable } from "./internal/is";
+
+export function map<A, B>(
+  mapper: Mapper<A, B>
+): (source: Iterable<A>) => Generator<B>;
+export function map<A, B>(
+  source: Iterable<A>,
+  mapper: Mapper<A, B>
+): Generator<B>;
+export function map(x: unknown, y?: unknown): unknown {
+  let mapper: Mapper<unknown, unknown>;
+  if (isIterable(x)) {
+    mapper = y as Mapper<unknown, unknown>;
+  } else {
+    mapper = x as Mapper<unknown, unknown>;
+  }
+
+  function* logic(source: Iterable<unknown>) {
+    for (const x1 of source) {
+      yield mapper(x1);
+    }
+  }
+
+  if (isIterable(x)) {
+    return logic(x);
+  } else {
+    return logic;
+  }
+}
 
 export function zip<B>(
   other: Iterable<B>
