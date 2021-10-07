@@ -1,8 +1,7 @@
 import { pipe } from "../lib/internal/functools";
-import { asArray, asCount, asCounter, range, take } from "../lib";
+import { asArray, asCount, asCounter, range, take, repeat } from "../lib";
 import { isArray } from "../lib/internal/is";
 import { le } from "../lib/internal/mathtools";
-import { repeat } from "../lib/constructors";
 
 describe("asArray", () => {
   test("goes into an array", () => {

@@ -1,3 +1,26 @@
+import { Predicate } from "./types";
+
+export function curry2(f: Function): (a: any, b?: any) => any {
+  return function curried(a, b) {
+    if (arguments.length === 1) {
+      return (_a: any) => curried(_a, a);
+    }
+    return f(a, b);
+  };
+}
+
+export function curry3(
+  firstArgValidator: Predicate<any>,
+  f: Function
+): (a: any, b?: any, c?: any) => any {
+  return function curried(a, b, c) {
+    if (arguments.length <= 2 && firstArgValidator(a)) {
+      return (_a: any) => curried(_a, a, b);
+    }
+    return f(a, b, c);
+  };
+}
+
 export function pipe<A>(a: A): A;
 export function pipe<A, B>(a: A, ab: (a: A) => B): B;
 export function pipe<A, B, C>(a: A, ab: (a: A) => B, bc: (b: B) => C): C;

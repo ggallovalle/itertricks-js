@@ -1,19 +1,12 @@
 import { Mapper, Tuple2, WithEntries, Zipped } from "./internal/types";
 import { getIterator, isIterable } from "./internal/is";
+import { curry2 } from "./internal/functools";
 
-/**
- * Create a new iterator populated with the results of calling the `mapper` for each
- * element in the `source`.
- *
- * @category transformers
- * @public
- * @since 1.0.0
- * @version 1.0.0
- * @param mapper
- */
-export function map<A, B>(
-  mapper: Mapper<A, B>
-): (source: Iterable<A>) => Generator<B>;
+type Map = {
+  <A, B>(mapper: Mapper<A, B>): (source: Iterable<A>) => Generator<B>;
+  <A, B>(source: Iterable<A>, mapper: Mapper<A, B>): Generator<B>;
+};
+
 /**
  * Create a new iterator populated with the results of calling the `mapper` for each
  * element in the `source`.
@@ -25,30 +18,11 @@ export function map<A, B>(
  * @param source
  * @param mapper
  */
-export function map<A, B>(
-  source: Iterable<A>,
-  mapper: Mapper<A, B>
-): Generator<B>;
-export function map(x: unknown, y?: unknown): unknown {
-  let mapper: Mapper<unknown, unknown>;
-  if (isIterable(x)) {
-    mapper = y as Mapper<unknown, unknown>;
-  } else {
-    mapper = x as Mapper<unknown, unknown>;
+export const map: Map = curry2(function* logic(source: any, mapper: any) {
+  for (const element of source) {
+    yield mapper(element);
   }
-
-  function* logic(source: Iterable<unknown>) {
-    for (const x1 of source) {
-      yield mapper(x1);
-    }
-  }
-
-  if (isIterable(x)) {
-    return logic(x);
-  } else {
-    return logic;
-  }
-}
+});
 
 /**
  * Like {@link map} but the mapper is passed both the element and the index. The `source`

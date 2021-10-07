@@ -26,16 +26,32 @@ export function asArray<T>(source: Iterable<T>): T[] {
  */
 export function asCount<T>(
   predicate: Predicate<T>
-): (source: Iterable<T>) => number {
-  return (source) => {
-    let counter = 0;
-    for (const sourceElement of source) {
-      if (predicate(sourceElement)) {
-        counter++;
-      }
+): (source: Iterable<T>) => number;
+/**
+ * Count the number of elements that matches the `predicate`.
+ *
+ * @category collectors
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ * @param source
+ * @param predicate
+ */
+export function asCount<T>(
+  source: Iterable<T>,
+  predicate: Predicate<T>
+): number;
+export function asCount<T>(source: any, predicate?: any): unknown {
+  if (arguments.length === 1) {
+    return (_source: any) => asCount(_source, source);
+  }
+  let counter = 0;
+  for (const sourceElement of source) {
+    if (predicate(sourceElement)) {
+      counter++;
     }
-    return counter;
-  };
+  }
+  return counter;
 }
 
 /**

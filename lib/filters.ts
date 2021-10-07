@@ -1,20 +1,13 @@
 import { Predicate } from "./internal/types";
-import { isIterable } from "./internal/is";
+import { curry2 } from "./internal/functools";
+
+type Filter = {
+  <T>(predicate: Predicate<T>): (source: Iterable<T>) => Generator<T>;
+  <T>(source: Iterable<T>, predicate: Predicate<T>): Generator<T>;
+};
 
 /**
- * Create a new iterable with the elements from `source` that matches the `predicate`.
- *
- * @category filters
- * @public
- * @since 1.0.0
- * @version 1.0.0
- * @param predicate
- */
-export function filter<T>(
-  predicate: Predicate<T>
-): (source: Iterable<T>) => Generator<T>;
-/**
- * Create a new iterable with the elements from `source` that matches the `predicate`.
+ * Create a new iterable with the elements from `source` that match the `predicate`.
  *
  * @category filters
  * @public
@@ -23,47 +16,24 @@ export function filter<T>(
  * @param source
  * @param predicate
  */
-export function filter<T>(
-  source: Iterable<T>,
-  predicate: Predicate<T>
-): Generator<T>;
-export function filter(x: unknown, y?: unknown): unknown {
-  let predicate: Predicate<unknown>;
-  if (isIterable(x)) {
-    predicate = y as Predicate<unknown>;
-  } else {
-    predicate = x as Predicate<unknown>;
-  }
-
-  function* logic(source: Iterable<unknown>) {
-    for (const sourceElement of source) {
-      if (predicate(sourceElement)) {
-        yield sourceElement;
-      }
+export const filter: Filter = curry2(function* logic(
+  source: any,
+  predicate: any
+) {
+  for (const sourceElement of source) {
+    if (predicate(sourceElement)) {
+      yield sourceElement;
     }
   }
+});
 
-  if (isIterable(x)) {
-    return logic(x);
-  } else {
-    return logic;
-  }
-}
+type FilterNot = {
+  <T>(predicate: Predicate<T>): (source: Iterable<T>) => Generator<T>;
+  <T>(source: Iterable<T>, predicate: Predicate<T>): Generator<T>;
+};
 
 /**
- * Create a new iterable with the elements from `source` that does not matches the `predicate`.
- *
- * @category filters
- * @public
- * @since 1.0.0
- * @version 1.0.0
- * @param predicate
- */
-export function filterNot<T>(
-  predicate: Predicate<T>
-): (source: Iterable<T>) => Generator<T>;
-/**
- * Create a new iterable with the elements from `source` that does not matches the `predicate`.
+ * Create a new iterable with the elements from `source` that does not match the `predicate`.
  *
  * @category filters
  * @public
@@ -72,45 +42,22 @@ export function filterNot<T>(
  * @param source
  * @param predicate
  */
-export function filterNot<T>(
-  source: Iterable<T>,
-  predicate: Predicate<T>
-): Generator<T>;
-export function filterNot(x: unknown, y?: unknown): unknown {
-  let predicate: Predicate<unknown>;
-  if (isIterable(x)) {
-    predicate = y as Predicate<unknown>;
-  } else {
-    predicate = x as Predicate<unknown>;
-  }
-
-  function* logic(source: Iterable<unknown>) {
-    for (const sourceElement of source) {
-      if (!predicate(sourceElement)) {
-        yield sourceElement;
-      }
+export const filterNot: FilterNot = curry2(function* logic(
+  source: any,
+  predicate: any
+) {
+  for (const sourceElement of source) {
+    if (!predicate(sourceElement)) {
+      yield sourceElement;
     }
   }
+});
 
-  if (isIterable(x)) {
-    return logic(x);
-  } else {
-    return logic;
-  }
-}
+type Some = {
+  <T>(predicate: Predicate<T>): (source: Iterable<T>) => boolean;
+  <T>(source: Iterable<T>, predicate: Predicate<T>): boolean;
+};
 
-/**
- * Test if some of the elements matches the `predicate`.
- *
- * @category filters
- * @public
- * @since 1.0.0
- * @version 1.0.0
- * @param predicate
- */
-export function some<T>(
-  predicate: Predicate<T>
-): (source: Iterable<T>) => boolean;
 /**
  * Test if some of the elements matches the `predicate`.
  *
@@ -121,23 +68,15 @@ export function some<T>(
  * @param source
  * @param predicate
  */
-export function some<T>(source: Iterable<T>, predicate: Predicate<T>): boolean;
-export function some(x: unknown, y?: unknown): unknown {
+export const some: Some = curry2((source: any, predicate?: any): unknown => {
   return;
-}
+});
 
-/**
- * Test if all the elements matches the `predicate`.
- *
- * @category filters
- * @public
- * @since 1.0.0
- * @version 1.0.0
- * @param predicate
- */
-export function all<T>(
-  predicate: Predicate<T>
-): (source: Iterable<T>) => boolean;
+type All = {
+  <T>(predicate: Predicate<T>): (source: Iterable<T>) => boolean;
+  <T>(source: Iterable<T>, predicate: Predicate<T>): boolean;
+};
+
 /**
  * Test if all the elements matches the `predicate`.
  *
@@ -148,23 +87,15 @@ export function all<T>(
  * @param source
  * @param predicate
  */
-export function all<T>(source: Iterable<T>, predicate: Predicate<T>): boolean;
-export function all(x: unknown, y?: unknown): unknown {
+export const all: All = curry2((source: any, predicate?: any): unknown => {
   return;
-}
+});
 
-/**
- * Test if none of the elements matches the `predicate`.
- *
- * @category filters
- * @public
- * @since 1.0.0
- * @version 1.0.0
- * @param predicate
- */
-export function none<T>(
-  predicate: Predicate<T>
-): (source: Iterable<T>) => boolean;
+type None = {
+  <T>(predicate: Predicate<T>): (source: Iterable<T>) => boolean;
+  <T>(source: Iterable<T>, predicate: Predicate<T>): boolean;
+};
+
 /**
  * Test if none the elements matches the `predicate`.
  *
@@ -175,7 +106,7 @@ export function none<T>(
  * @param source
  * @param predicate
  */
-export function none<T>(source: Iterable<T>, predicate: Predicate<T>): boolean;
-export function none(x: unknown, y?: unknown): unknown {
+
+export const none: None = curry2((source: any, predicate?: any): unknown => {
   return;
-}
+});
