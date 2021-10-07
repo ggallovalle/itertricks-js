@@ -12,14 +12,14 @@ import { InfiniteLoopError } from "./internal/errors";
  * @since 1.0.0
  * @version 1.0.0
  *
- * @param seed
+ * @param initial
  * @param f
  */
 export function* newGenerator<T>(
-  seed: T,
+  initial: T,
   f: (a: T) => T | null
-): Generator<T, any, undefined> {
-  let previous: T | null = seed;
+): Generator<T> {
+  let previous: T | null = initial;
   while (previous != null) {
     yield previous;
     previous = f(previous);
