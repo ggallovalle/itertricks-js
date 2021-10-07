@@ -16,7 +16,14 @@ export {
 } from "./collectors";
 export { filter, filterNot, some, none, all } from "./filters";
 // filterIndexed
-export { zip, unzip, map } from "./transformations";
+export {
+  zip,
+  unzip,
+  map,
+  mapIndexed,
+  mapNotNull,
+  mapIndexedNotNull,
+} from "./transformations";
 // mapIndexed,
 // mapIndexedNotNull,
 // mapNotNull,

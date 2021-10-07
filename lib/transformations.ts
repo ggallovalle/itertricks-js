@@ -1,4 +1,4 @@
-import { Mapper, Tuple2, Zipped } from "./internal/types";
+import { Mapper, Tuple2, WithEntries, Zipped } from "./internal/types";
 import { getIterator, isIterable } from "./internal/is";
 
 /**
@@ -48,6 +48,168 @@ export function map(x: unknown, y?: unknown): unknown {
   } else {
     return logic;
   }
+}
+
+/**
+ * Like {@link map} but the mapper is passed both the element and the index. The `source`
+ * can be any builtin JavaScript collection like object, such as `Array`, `Map`, `Set` and
+ * even a plain old object, such as one made from an object literal `{}` or an instance of
+ * your own class class.
+ * @remarks
+ * The behaviour of applying it into a plain object is the same as [MDN Object.entries](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries)
+ *
+ * @category transformers
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ * @param mapper
+ */
+export function mapIndexed<A, B, TIndex>(
+  mapper: (element: A, index: TIndex) => B
+): (source: WithEntries<TIndex, A>) => Generator<A>;
+/**
+ * Like {@link map} but the mapper is passed both the element and the index.
+ *
+ * @category transformers
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ * @param mapper
+ */
+export function mapIndexed<A, B, TIndex>(
+  mapper: (element: A, index: TIndex) => B
+): (source: Iterable<[TIndex, A]>) => Generator<A>;
+/**
+ * Like {@link map} but the mapper is passed both the element and the index. The `source`
+ * can be any builtin JavaScript collection like object, such as `Array`, `Map`, `Set` and
+ * even a plain old object, such as one made from an object literal `{}` or an instance of a class.
+ * @remarks
+ * The behaviour of applying it into a plain object is the same as [MDN Object.entries](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries)
+ *
+ * @category transformers
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ * @param source
+ * @param mapper
+ */
+export function mapIndexed<A, B, TIndex>(
+  source: WithEntries<TIndex, A>,
+  mapper: (element: A, index: TIndex) => B
+): Generator<A>;
+/**
+ * Like {@link map} but the mapper is passed both the element and the index.
+ *
+ * @category transformers
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ * @param source
+ * @param mapper
+ */
+export function mapIndexed<A, B, TIndex>(
+  source: Iterable<[TIndex, A]>,
+  mapper: (element: A, index: TIndex) => B
+): Generator<A>;
+export function mapIndexed(x: unknown, y?: unknown): unknown {
+  return;
+}
+
+/**
+ * Like {@link map} but the ignore the value returned by `mapper` if it returns
+ * `null` or `undefined`.
+ *
+ * @category transformers
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ * @param mapper
+ */
+export function mapNotNull<A, B>(
+  mapper: Mapper<A, B | null>
+): (source: Iterable<A>) => Generator<B>;
+/**
+ * Like {@link map} but the ignore the value returned by `mapper` if it returns
+ * `null` or `undefined`.
+ *
+ * @category transformers
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ * @param source
+ * @param mapper
+ */
+export function mapNotNull<A, B>(
+  source: Iterable<A>,
+  mapper: Mapper<A, B | null>
+): Generator<B>;
+export function mapNotNull(x: unknown, y?: unknown): unknown {
+  return;
+}
+
+/**
+ *
+ * Is {@link mapIndexed} and {@link mapNotNull} combined. The `source`
+ * can be any builtin JavaScript collection like object, such as `Array`, `Map`, `Set` and
+ * even a plain old object, such as one made from an object literal `{}` or an instance of a class
+ * @remarks
+ * The behaviour of applying it into a plain object is the same as [MDN Object.entries](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries)
+ *
+ * @category transformers
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ * @param mapper
+ */
+export function mapIndexedNotNull<A, B, TIndex>(
+  mapper: (element: A, index: TIndex) => B
+): (source: WithEntries<TIndex, A>) => Generator<A>;
+/**
+ * Is {@link mapIndexed} and {@link mapNotNull} combined.
+ *
+ * @category transformers
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ * @param mapper
+ */
+export function mapIndexedNotNull<A, B, TIndex>(
+  mapper: (element: A, index: TIndex) => B | null
+): (source: Iterable<[TIndex, A]>) => Generator<A>;
+/**
+ * Is {@link mapIndexed} and {@link mapNotNull} combined.
+ *
+ * @category transformers
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ * @param source
+ * @param mapper
+ */
+export function mapIndexedNotNull<A, B, TIndex>(
+  source: Iterable<[TIndex, A]>,
+  mapper: (element: A, index: TIndex) => B | null
+): Generator<A>;
+/**
+ * Is {@link mapIndexed} and {@link mapNotNull} combined.. The `source` can be any builtin
+ * JavaScript collection like object, such as `Array`, `Map`, `Set` and even a plain old
+ * object, such as one made from an object literal `{}` or an instance of a class.
+ * @remarks
+ * The behaviour of applying it into a plain object is the same as [MDN Object.entries](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries)
+ *
+ * @category transformers
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ * @param source
+ * @param mapper
+ */
+export function mapIndexedNotNull<A, B, TIndex>(
+  source: WithEntries<TIndex, A>,
+  mapper: (element: A, index: TIndex) => B
+): Generator<A>;
+export function mapIndexedNotNull(x: unknown, y?: unknown): unknown {
+  return;
 }
 
 /**
