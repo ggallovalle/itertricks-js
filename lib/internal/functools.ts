@@ -21,6 +21,23 @@ export function curry3(
   };
 }
 
+export function curry3_2(
+  firstArgValidator: Predicate<any>,
+  secondArgValidator: Predicate<any>,
+  f: Function
+): (a: any, b?: any, c?: any) => any {
+  return function curried(a, b, c) {
+    if (
+      arguments.length <= 2 &&
+      firstArgValidator(a) &&
+      secondArgValidator(b)
+    ) {
+      return (_a: any) => curried(_a, a, b);
+    }
+    return f(a, b, c);
+  };
+}
+
 export function pipe<A>(a: A): A;
 export function pipe<A, B>(a: A, ab: (a: A) => B): B;
 export function pipe<A, B, C>(a: A, ab: (a: A) => B, bc: (b: B) => C): C;

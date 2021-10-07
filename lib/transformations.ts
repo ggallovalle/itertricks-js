@@ -1,6 +1,6 @@
 import { Mapper, Tuple2, WithEntries, Zipped } from "./internal/types";
-import { getIterator, isIterable } from "./internal/is";
-import { curry2 } from "./internal/functools";
+import { getIterator, isFunction, isIterable } from "./internal/is";
+import { curry2, curry3_2 } from "./internal/functools";
 
 type Map = {
   <A, B>(mapper: Mapper<A, B>): (source: Iterable<A>) => Generator<B>;
@@ -18,7 +18,7 @@ type Map = {
  * @param source
  * @param mapper
  */
-export const map: Map = curry2(function* logic(source: any, mapper: any) {
+export const map: Map = curry2(function* (source: any, mapper: any) {
   for (const element of source) {
     yield mapper(element);
   }
@@ -186,56 +186,25 @@ export function mapIndexedNotNull(x: unknown, y?: unknown): unknown {
   return;
 }
 
+export type Zip = {
+  <B>(other: Iterable<B>): <A>(source: Iterable<A>) => Zipped<A, B>;
+  <B, A, TResult>(other: Iterable<B>, mapper: (a: A, b: B) => TResult): (
+    source: Iterable<A>
+  ) => TResult[];
+  <A, B>(source: Iterable<A>, other: Iterable<B>): Zipped<A, B>;
+  <A, B, TResult>(
+    source: Iterable<A>,
+    other: Iterable<B>,
+    mapper: (a: A, b: B) => TResult
+  ): TResult[];
+};
+
 /**
  * Build a pair of elements from two `sources`. If the sources have different sizes,
  * the result is the smaller size, the element after that in the larger `source` are
  * not included in the result.
  *
- * @category transformers
- * @public
- * @since 1.0.0
- * @version 1.0.0
- * @param other
- */
-export function zip<B>(
-  other: Iterable<B>
-): <A>(source: Iterable<A>) => Zipped<A, B>;
-/**
- * Build a pair of elements from two `sources`. If the sources have different sizes,
- * the result is the smaller size, the element after that in the larger `source` are
- * not included in the result. And for each pair of elements call the provided `mapper`.
- *
- * @category transformers
- * @public
- * @since 1.0.0
- * @version 1.0.0
- * @param other
- * @param mapper
- */
-export function zip<B, A, TResult>(
-  other: Iterable<B>,
-  mapper: (a: A, b: B) => TResult
-): (source: Iterable<A>) => TResult[];
-/**
- * Build a pair of elements from two `sources`. If the sources have different sizes,
- * the result is the smaller size, the element after that in the larger `source` are
- * not included in the result.
- *
- * @category transformers
- * @public
- * @since 1.0.0
- * @version 1.0.0
- * @param source
- * @param other
- */
-export function zip<A, B>(
-  source: Iterable<A>,
-  other: Iterable<B>
-): Zipped<A, B>;
-/**
- * Build a pair of elements from two `sources`. If the sources have different sizes,
- * the result is the smaller size, the element after that in the larger `source` are
- * not included in the result. And for each pair of elements call the provided `mapper`.
+ * If `mapper` is provided call it for zipped element.
  *
  * @category transformers
  * @public
@@ -245,27 +214,10 @@ export function zip<A, B>(
  * @param other
  * @param mapper
  */
-export function zip<A, B, TResult>(
-  source: Iterable<A>,
-  other: Iterable<B>,
-  mapper: (a: A, b: B) => TResult
-): TResult[];
-export function zip(x: unknown, y?: unknown, z?: unknown): unknown {
-  let source!: Iterable<unknown>;
-  let other: Iterable<unknown>;
-  let mapper: ((a: unknown, b: unknown) => unknown) | null;
-
-  const isCurried = !isIterable(y);
-  if (isCurried) {
-    other = x as Iterable<unknown>;
-    mapper = y as null;
-  } else {
-    source = x as Iterable<unknown>;
-    other = y as Iterable<unknown>;
-    mapper = z as null;
-  }
-
-  function logic(source: any) {
+export const zip: Zip = curry3_2(
+  isIterable,
+  (x) => x == null || isFunction(x),
+  (source: any, other: any, mapper: any) => {
     const firstIter = getIterator(source);
     const secondIter = getIterator(other);
     const accumulator = [];
@@ -286,13 +238,7 @@ export function zip(x: unknown, y?: unknown, z?: unknown): unknown {
     }
     return accumulator;
   }
-
-  if (isCurried) {
-    return logic;
-  } else {
-    return logic(source);
-  }
-}
+);
 
 /**
  * Split a zipped array, where the first element of the returned array is all the elements

@@ -16,10 +16,7 @@ type Filter = {
  * @param source
  * @param predicate
  */
-export const filter: Filter = curry2(function* logic(
-  source: any,
-  predicate: any
-) {
+export const filter: Filter = curry2(function* (source: any, predicate: any) {
   for (const sourceElement of source) {
     if (predicate(sourceElement)) {
       yield sourceElement;
@@ -42,7 +39,7 @@ type FilterNot = {
  * @param source
  * @param predicate
  */
-export const filterNot: FilterNot = curry2(function* logic(
+export const filterNot: FilterNot = curry2(function* (
   source: any,
   predicate: any
 ) {
