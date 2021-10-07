@@ -1,9 +1,30 @@
 import { Mapper, Tuple2, Zipped } from "./internal/types";
 import { getIterator, isIterable } from "./internal/is";
 
+/**
+ * Create a new iterator populated with the results of calling the `mapper` for each
+ * element in the `source`.
+ *
+ * @category transformers
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ * @param mapper
+ */
 export function map<A, B>(
   mapper: Mapper<A, B>
 ): (source: Iterable<A>) => Generator<B>;
+/**
+ * Create a new iterator populated with the results of calling the `mapper` for each
+ * element in the `source`.
+ *
+ * @category transformers
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ * @param source
+ * @param mapper
+ */
 export function map<A, B>(
   source: Iterable<A>,
   mapper: Mapper<A, B>
@@ -29,18 +50,66 @@ export function map(x: unknown, y?: unknown): unknown {
   }
 }
 
+/**
+ * Build a pair of elements from two `sources`. If the sources have different sizes,
+ * the result is the smaller size, the element after that in the larger `source` are
+ * not included in the result.
+ *
+ * @category transformers
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ * @param other
+ */
 export function zip<B>(
   other: Iterable<B>
 ): <A>(source: Iterable<A>) => Zipped<A, B>;
+/**
+ * Build a pair of elements from two `sources`. If the sources have different sizes,
+ * the result is the smaller size, the element after that in the larger `source` are
+ * not included in the result. And for each pair of elements call the provided `mapper`.
+ *
+ * @category transformers
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ * @param other
+ * @param mapper
+ */
 export function zip<B, A, TResult>(
   other: Iterable<B>,
   mapper: (a: A, b: B) => TResult
 ): (source: Iterable<A>) => TResult[];
-export function zip<B, A>(
+/**
+ * Build a pair of elements from two `sources`. If the sources have different sizes,
+ * the result is the smaller size, the element after that in the larger `source` are
+ * not included in the result.
+ *
+ * @category transformers
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ * @param source
+ * @param other
+ */
+export function zip<A, B>(
   source: Iterable<A>,
   other: Iterable<B>
 ): Zipped<A, B>;
-export function zip<B, A, TResult>(
+/**
+ * Build a pair of elements from two `sources`. If the sources have different sizes,
+ * the result is the smaller size, the element after that in the larger `source` are
+ * not included in the result. And for each pair of elements call the provided `mapper`.
+ *
+ * @category transformers
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ * @param source
+ * @param other
+ * @param mapper
+ */
+export function zip<A, B, TResult>(
   source: Iterable<A>,
   other: Iterable<B>,
   mapper: (a: A, b: B) => TResult
@@ -89,6 +158,17 @@ export function zip(x: unknown, y?: unknown, z?: unknown): unknown {
   }
 }
 
+/**
+ * Split a zipped array, where the first element of the returned array is all the elements
+ * from what it was the `source` and the second element of such array is what it was the
+ * `other`. See {@link zip} for a better understanding.
+ *
+ * @category transformers
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ * @param source
+ */
 export function unzip<A, B>(source: Zipped<A, B>): Tuple2<A[], B[]> {
   const accA: A[] = [];
   const accB: B[] = [];

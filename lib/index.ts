@@ -1,12 +1,22 @@
-export { take, chunked, windowed } from "./parts";
-export { range, newGenerator, count, cycle } from "./constructors";
-export { asCount, asCounter, asArray } from "./collectors";
-export { filter, filterNot, filterIndexed } from "./filters";
+export { take, chunked, windowed, partition } from "./parts";
+export { range, newGenerator, count, cycle, repeat } from "./constructors";
 export {
-  zip,
-  unzip,
-  map,
-  mapIndexed,
-  mapIndexedNotNull,
-  mapNotNull,
-} from "./transformations";
+  asCount,
+  asCounter,
+  asArray,
+  groupBy,
+  reduce,
+  reduceRight,
+  fold,
+  foldRight,
+  scan,
+  scanRight,
+  scanFold,
+  scanFoldRight,
+} from "./collectors";
+export { filter, filterNot, some, none, all } from "./filters";
+// filterIndexed
+export { zip, unzip, map } from "./transformations";
+// mapIndexed,
+// mapIndexedNotNull,
+// mapNotNull,

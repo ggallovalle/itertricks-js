@@ -1,4 +1,5 @@
 import { isIterable } from "./internal/is";
+import { Partitioned, Predicate } from "./internal/types";
 
 /**
  * Take the first `n` elements out of iterable.
@@ -193,4 +194,24 @@ export function windowed<T>(
   } else {
     return logic;
   }
+}
+
+/**
+ * Split the `source` based on the `predicate`. The matches would be located at the `right`,
+ * the ones that did not matched will be located at the `left`.
+ * @category parts
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ * @param predicate
+ */
+export function partition<T>(
+  predicate: Predicate<T>
+): (source: Iterable<T>) => Partitioned<T, T>;
+export function partition<T>(
+  source: Iterable<T>,
+  predicate: Predicate<T>
+): Partitioned<T, T>;
+export function partition(x: unknown, y?: unknown): unknown {
+  return;
 }

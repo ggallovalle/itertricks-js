@@ -1,6 +1,7 @@
 {
   "entryPoints": [
-    "lib/index.ts"
+    "lib/index.ts",
+    "lib/internal/types.ts"
   ],
   "out": "docs"
 }
