@@ -65,7 +65,7 @@ type Some = {
  * @param source
  * @param predicate
  */
-export const some: Some = curry2((source: any, predicate?: any): unknown => {
+export const some: Some = curry2((source: any, predicate?: any): any => {
   return;
 });
 
@@ -84,7 +84,7 @@ type All = {
  * @param source
  * @param predicate
  */
-export const all: All = curry2((source: any, predicate?: any): unknown => {
+export const all: All = curry2((source: any, predicate?: any): any => {
   return;
 });
 
@@ -104,6 +104,6 @@ type None = {
  * @param predicate
  */
 
-export const none: None = curry2((source: any, predicate?: any): unknown => {
+export const none: None = curry2((source: any, predicate?: any): any => {
   return;
 });

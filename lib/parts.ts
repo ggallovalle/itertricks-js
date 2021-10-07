@@ -133,6 +133,6 @@ export function partition<T>(
   source: Iterable<T>,
   predicate: Predicate<T>
 ): Partitioned<T, T>;
-export function partition(x: unknown, y?: unknown): unknown {
+export function partition(x: any, y?: any): any {
   return;
 }
