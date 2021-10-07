@@ -9,3 +9,11 @@ export function lt(b: number): (b: number) => boolean {
 export function le(b: number): (a: number) => boolean {
   return (a) => a <= b;
 }
+
+export function gt(b: number): (b: number) => boolean {
+  return (a) => a > b;
+}
+
+export function ge(b: number): (a: number) => boolean {
+  return (a) => a >= b;
+}
