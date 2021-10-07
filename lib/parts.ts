@@ -25,14 +25,14 @@ export function take(n: number): <T>(source: Iterable<T>) => Generator<T>;
  * @param n
  */
 export function take<T>(source: Iterable<T>, n: number): Generator<T>;
-export function take<T>(x: any, y?: any): any {
+export function take<T>(x: unknown, y?: unknown): unknown {
   let n: number;
   let source: Iterable<T> | null = null;
   if (isIterable(x)) {
     source = x;
-    n = y;
+    n = y as number;
   } else {
-    n = x;
+    n = x as number;
   }
   let counter = 0;
   const logic = function* (s: Iterable<T>) {
@@ -80,14 +80,14 @@ export function chunked(
  * @throws {RangeError} - when `size` <= 0
  */
 export function chunked<T>(source: Iterable<T>, size: number): Generator<T[]>;
-export function chunked<T>(x: any, y?: any): any {
+export function chunked<T>(x: unknown, y?: unknown): unknown {
   let size: number;
   let source: Iterable<T> | null = null;
   if (isIterable(x)) {
     source = x;
-    size = y;
+    size = y as number;
   } else {
-    size = x;
+    size = x as number;
   }
   if (size <= 0) throw new RangeError("`size` MUST be >= 0");
   let counter = 0;
@@ -157,16 +157,21 @@ export function windowed<T>(
   size: number,
   options?: { step?: number; partialWindow?: boolean }
 ): Generator<T[]>;
-export function windowed<T>(x: any, y?: any, options?: any): any {
+export function windowed<T>(
+  x: unknown,
+  y?: unknown,
+  options?: unknown
+): unknown {
   let size: number;
   let source: Iterable<T> | null = null;
+  let actualOptions: { step?: number; partialWindow?: boolean };
   if (isIterable(x)) {
     source = x;
-    size = y;
-    options = { ..._windowedDefaultOptions, ...options };
+    size = y as number;
+    actualOptions = { ..._windowedDefaultOptions, ...(options as object) };
   } else {
-    size = x;
-    options = { ..._windowedDefaultOptions, ...y };
+    size = x as number;
+    actualOptions = { ..._windowedDefaultOptions, ...(y as object) };
   }
   const logic = function* (s: Iterable<T>) {
     let counter = 0;
@@ -177,11 +182,11 @@ export function windowed<T>(x: any, y?: any, options?: any): any {
       accumulator.push(element);
       if (counter === size) {
         yield accumulator;
-        counter = counter - (options.step ?? 0);
-        accumulator = accumulator.slice(options.step);
+        counter = counter - (actualOptions.step ?? 0);
+        accumulator = accumulator.slice(actualOptions.step);
       }
     }
-    if (options.partialWindow) yield accumulator;
+    if (actualOptions.partialWindow) yield accumulator;
   };
   if (isIterable(source)) {
     return logic(source);
