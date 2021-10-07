@@ -1,0 +1,135 @@
+{
+  "name": "Range of numbers from x to y.",
+  "date": "2021-10-07T22:55:20.730Z",
+  "version": "1.0.0",
+  "results": [
+    {
+      "name": "JavaScript while loop with a size of 100",
+      "ops": 8178369,
+      "margin": 0.31,
+      "percentSlower": 0
+    },
+    {
+      "name": "JavaScript for-i loop with a size of 100",
+      "ops": 8149879,
+      "margin": 0.81,
+      "percentSlower": 0.35
+    },
+    {
+      "name": "Range with generators simplified with a size of 100",
+      "ops": 284087,
+      "margin": 0.55,
+      "percentSlower": 96.53
+    },
+    {
+      "name": "Itertricks range with a size of 100",
+      "ops": 263788,
+      "margin": 1.6,
+      "percentSlower": 96.77
+    },
+    {
+      "name": "JavaScript while loop with a size of 1000",
+      "ops": 756397,
+      "margin": 0.23,
+      "percentSlower": 90.75
+    },
+    {
+      "name": "JavaScript for-i loop with a size of 1000",
+      "ops": 755358,
+      "margin": 0.21,
+      "percentSlower": 90.76
+    },
+    {
+      "name": "Range with generators simplified with a size of 1000",
+      "ops": 29456,
+      "margin": 0.45,
+      "percentSlower": 99.64
+    },
+    {
+      "name": "Itertricks range with a size of 1000",
+      "ops": 27898,
+      "margin": 0.9,
+      "percentSlower": 99.66
+    },
+    {
+      "name": "JavaScript while loop with a size of 10000",
+      "ops": 77258,
+      "margin": 0.72,
+      "percentSlower": 99.06
+    },
+    {
+      "name": "JavaScript for-i loop with a size of 10000",
+      "ops": 77592,
+      "margin": 0.51,
+      "percentSlower": 99.05
+    },
+    {
+      "name": "Range with generators simplified with a size of 10000",
+      "ops": 2885,
+      "margin": 1.19,
+      "percentSlower": 99.96
+    },
+    {
+      "name": "Itertricks range with a size of 10000",
+      "ops": 2740,
+      "margin": 1.14,
+      "percentSlower": 99.97
+    },
+    {
+      "name": "JavaScript while loop with a size of 300000",
+      "ops": 2593,
+      "margin": 0.68,
+      "percentSlower": 99.97
+    },
+    {
+      "name": "JavaScript for-i loop with a size of 300000",
+      "ops": 2633,
+      "margin": 0.26,
+      "percentSlower": 99.97
+    },
+    {
+      "name": "Range with generators simplified with a size of 300000",
+      "ops": 97,
+      "margin": 1.06,
+      "percentSlower": 100
+    },
+    {
+      "name": "Itertricks range with a size of 300000",
+      "ops": 92,
+      "margin": 0.59,
+      "percentSlower": 100
+    },
+    {
+      "name": "JavaScript while loop with a size of 800000",
+      "ops": 988,
+      "margin": 0.3,
+      "percentSlower": 99.99
+    },
+    {
+      "name": "JavaScript for-i loop with a size of 800000",
+      "ops": 989,
+      "margin": 0.16,
+      "percentSlower": 99.99
+    },
+    {
+      "name": "Range with generators simplified with a size of 800000",
+      "ops": 36,
+      "margin": 0.78,
+      "percentSlower": 100
+    },
+    {
+      "name": "Itertricks range with a size of 800000",
+      "ops": 34,
+      "margin": 0.6,
+      "percentSlower": 100
+    }
+  ],
+  "fastest": {
+    "name": "JavaScript while loop with a size of 100",
+    "index": 0
+  },
+  "slowest": {
+    "name": "Itertricks range with a size of 800000",
+    "index": 19
+  }
+}

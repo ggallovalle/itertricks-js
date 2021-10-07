@@ -36,6 +36,7 @@
   "devDependencies": {
     "@types/jest": "^27.0.2",
     "@types/node": "^16.10.2",
+    "benny": "^3.7.0",
     "concurrently": "^6.2.2",
     "execa": "^5.1.1",
     "gulp": "^4.0.2",
