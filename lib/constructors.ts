@@ -1,17 +1,15 @@
 import { InfiniteLoopError } from "./internal/errors";
 
 /**
- * Returns a Generator defined by the starting value `seed` and the function `f` which
+ * Returns a Generator defined by the starting value `initial` and the function `f` which
  *is invoked to calculate the next value based on the previous one on each iteration.
  *
- * When `f` returns null, the iteration is finite, otherwise is infinite. Or not or yes.
+ * When `f` returns null, the iteration ends, otherwise is infinite loop.
  *
- * @category constructor
- *
+ * @category constructors
  * @public
  * @since 1.0.0
  * @version 1.0.0
- *
  * @param initial
  * @param f
  */
@@ -29,24 +27,20 @@ export function* newGenerator<T>(
 /**
  * Starting from `0` until `stop`.
  *
- * @category constructor
- *
+ * @category constructors
  * @public
  * @since 1.0.0
  * @version 1.0.0
- *
  * @param stop
  */
 export function range(stop: number): Generator<number>;
 /**
  * Starting from `start` until `stop`, with `step`.
  *
- * @category constructor
- *
+ * @category constructors
  * @public
  * @since 1.0.0
  * @version 1.0.0
- *
  * @param start
  * @param stop
  * @param [step=1] - the value of step parameter.
@@ -89,12 +83,10 @@ export function* range(
 /**
  * Count infinitely from `start` with evenly spaced `step`.
  *
- * @category constructor
- *
+ * @category constructors
  * @public
  * @since 1.0.0
  * @version 1.0.0
- *
  * @param [start=0]
  * @param [step=1]
  */
@@ -106,6 +98,16 @@ export function* count(start: number = 0, step: number = 1): Generator<number> {
   }
 }
 
+/**
+ * When the end of the `source` is reached, start again from the beginning, creating an
+ * infinite loop. Watch out for the size of the source, because it is kept in memory to
+ * be able to cycle through it.
+ * @category constructors
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ * @param source
+ */
 export function* cycle<T>(source: Iterable<T>): Generator<T> {
   const saved = [];
   for (const element of source) {
@@ -120,6 +122,14 @@ export function* cycle<T>(source: Iterable<T>): Generator<T> {
   }
 }
 
+/**
+ * Repeat `value` infinitely .
+ * @category constructors
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ * @param value
+ */
 export function* repeat<T>(value: T): Generator<T> {
   while (true) {
     yield value;
