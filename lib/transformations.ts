@@ -1,5 +1,12 @@
 import { Mapper, Tuple2, WithEntries, Zipped } from "./internal/types";
-import { getIterator, isFunction, isIterable } from "./internal/is";
+import {
+  getIterator,
+  isFunction,
+  isIterable,
+  isNotNull,
+  isPlainObject,
+  isWithEntries,
+} from "./internal/is";
 import { curry2, curry3_2 } from "./internal/functools";
 
 type Map = {
@@ -26,17 +33,10 @@ export const map: Map = curry2(function* (source: any, mapper: any) {
 
 type MapIndexed = {
   <A, B, TIndex>(mapper: (element: A, index: TIndex) => B): (
-    source: WithEntries<TIndex, A>
-  ) => Generator<A>;
-  <A, B, TIndex>(mapper: (element: A, index: TIndex) => B): (
-    source: Iterable<Tuple2<TIndex, A>>
+    source: WithEntries<TIndex, A> | Iterable<Tuple2<TIndex, A>>
   ) => Generator<A>;
   <A, B, TIndex>(
-    source: WithEntries<TIndex, A>,
-    mapper: (element: A, index: TIndex) => B
-  ): Generator<A>;
-  <A, B, TIndex>(
-    source: Iterable<Tuple2<TIndex, A>>,
+    source: WithEntries<TIndex, A> | Iterable<Tuple2<TIndex, A>>,
     mapper: (element: A, index: TIndex) => B
   ): Generator<A>;
 };
@@ -44,10 +44,8 @@ type MapIndexed = {
 /**
  * Like {@link map} but the mapper is passed both the element and the index. The `source`
  * can be a {@link Tuple2} Iterable or  any builtin JavaScript collection like object, such as
- * `Array`, `Map`, `Set` and even a plain old object, such as one made from an object literal
- * `{}` or an instance of your own class class.
- * @remarks
- * The behaviour of applying it into a plain object is the same as [MDN Object.entries](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries)
+ * `Array`, `Map`, `Set` or any object with an `entries()` method which returns an iterable of
+ * key value pairs.
  *
  * @category transformers
  * @public
@@ -56,8 +54,19 @@ type MapIndexed = {
  * @param source
  * @param mapper
  */
-export const mapIndexed: MapIndexed = curry2((source: any, mapper?: any) => {
-  return;
+export const mapIndexed: MapIndexed = curry2(function* (
+  source: any,
+  mapper?: any
+) {
+  if (isWithEntries(source)) {
+    for (const [key, value] of source.entries()) {
+      yield mapper(value, key);
+    }
+  } else {
+    for (const [key, value] of source) {
+      yield mapper(value, key);
+    }
+  }
 });
 
 type MapNotNull = {
@@ -75,8 +84,16 @@ type MapNotNull = {
  * @param source
  * @param mapper
  */
-export const mapNotNull: MapNotNull = curry2((source: any, mapper?: any) => {
-  return;
+export const mapNotNull: MapNotNull = curry2(function* (
+  source: any,
+  mapper?: any
+) {
+  for (const element of source) {
+    const x = mapper(element);
+    if (isNotNull(x)) {
+      yield x;
+    }
+  }
 });
 
 type MapIndexedNotNull = {
@@ -116,7 +133,7 @@ export const mapIndexedNotNull: MapIndexedNotNull = curry2(
   }
 );
 
-export type Zip = {
+type Zip = {
   <B>(other: Iterable<B>): <A>(source: Iterable<A>) => Zipped<A, B>;
   <B, A, TResult>(other: Iterable<B>, mapper: (a: A, b: B) => TResult): (
     source: Iterable<A>

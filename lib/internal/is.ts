@@ -1,3 +1,5 @@
+import { WithEntries } from "./types";
+
 export function isNotNull(source: unknown): source is any {
   return source != null;
 }
@@ -15,7 +17,7 @@ export function isFunction(source: unknown): source is Function {
 }
 
 export function isPlainObject(source: unknown): source is object {
-  return isFunction(source) && !isArray(source);
+  return !isFunction(source) && !isIterable(source);
 }
 
 export function isObject(source: unknown): source is object {
@@ -48,4 +50,8 @@ export function getIterator(source: unknown): Iterator<unknown> {
   }
 
   throw new Error(`${source} is neither an Iterable nor a Generator`);
+}
+
+export function isWithEntries(source: any): source is WithEntries<any, any> {
+  return isFunction(source.entries);
 }

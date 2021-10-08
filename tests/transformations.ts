@@ -1,6 +1,16 @@
-import { asArray, map, range, unzip, zip } from "../lib";
-import { first, last, len } from "../lib/internal/len";
-import { Zipped } from "../lib/internal/types";
+import {
+  asArray,
+  map,
+  mapIndexed,
+  mapNotNull,
+  range,
+  repeat,
+  take,
+  unzip,
+  zip,
+} from "../lib";
+import { first, last, len, nth } from "../lib/internal/len";
+import { Tuple2, Zipped } from "../lib/internal/types";
 import { pipe } from "../lib/internal/functools";
 import { add } from "../lib/internal/mathtools";
 
@@ -17,6 +27,77 @@ describe("map", () => {
     expect(len(actual)).toBe(10);
     expect(first(actual)).toBe(2);
     expect(last(actual)).toBe(11);
+  });
+});
+
+describe("mapNotNull", () => {
+  test("regular map works", () => {
+    const actual = pipe(range(1, 10), mapNotNull(add()), asArray);
+    expect(len(actual)).toBe(10);
+    expect(first(actual)).toBe(2);
+    expect(last(actual)).toBe(11);
+  });
+
+  test("if some is null, then it is not in the final result", () => {
+    const actual = pipe(
+      range(1, 10),
+      mapNotNull((x) => (x % 2 === 0 ? x * 2 : null)),
+      asArray
+    );
+    expect(len(actual)).toBe(5);
+    expect(first(actual)).toBe(4);
+    expect(last(actual)).toBe(20);
+  });
+});
+
+describe("mapWithEntries", () => {
+  describe("WithEntries source", () => {
+    test("array", () => {
+      const actual = pipe(
+        ["a", "b", "c"],
+        mapIndexed((v, k) => v + k),
+        asArray
+      );
+      expect(first(actual)).toBe("a0");
+      expect(nth(2, actual)).toBe("b1");
+      expect(last(actual)).toBe("c2");
+    });
+
+    test("set", () => {
+      const actual = pipe(
+        new Set(["x", "x", "z"]),
+        mapIndexed((v, k) => v + k),
+        asArray
+      );
+      expect(first(actual)).toBe("xx");
+      expect(last(actual)).toBe("zz");
+    });
+
+    test("map", () => {
+      const actual = pipe(
+        new Map([
+          ["x", 25],
+          ["y", 40],
+          ["z", 50],
+        ]),
+        mapIndexed((v, k) => v + k),
+        asArray
+      );
+      expect(first(actual)).toBe("25x");
+      expect(nth(2, actual)).toBe("40y");
+      expect(last(actual)).toBe("50z");
+    });
+  });
+
+  test("regular Tuple2 iterable", () => {
+    const actual = pipe(
+      repeat<Tuple2<string, string>>(["x", "y"]),
+      mapIndexed((v, k) => k + v),
+      take(20),
+      asArray
+    );
+    expect(first(actual)).toBe("xy");
+    expect(last(actual)).toBe("xy");
   });
 });
 
