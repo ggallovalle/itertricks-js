@@ -2,7 +2,9 @@ import {
   asArray,
   map,
   mapIndexed,
+  mapIndexedNotNull,
   mapNotNull,
+  newGenerator,
   range,
   repeat,
   take,
@@ -50,7 +52,7 @@ describe("mapNotNull", () => {
   });
 });
 
-describe("mapWithEntries", () => {
+describe("mapIndexed", () => {
   describe("WithEntries source", () => {
     test("array", () => {
       const actual = pipe(
@@ -98,6 +100,23 @@ describe("mapWithEntries", () => {
     );
     expect(first(actual)).toBe("xy");
     expect(last(actual)).toBe("xy");
+  });
+});
+
+describe("mapIndexedNotNull", () => {
+  test("ignores null in the result", () => {
+    const actual = pipe(
+      newGenerator<Tuple2<string, number>>(["a", 0], ([k, v]) => [
+        String.fromCharCode(k.charCodeAt(0) + 1), // go from a to b and so on
+        v + 1,
+      ]),
+      take(5),
+      mapIndexedNotNull((v, k) => (v % 2 === 0 ? v + k : null)),
+      asArray
+    );
+    expect(first(actual)).toBe("0a");
+    expect(len(actual)).toBe(3);
+    expect(last(actual)).toBe("4e");
   });
 });
 

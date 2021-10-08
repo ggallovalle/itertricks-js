@@ -98,17 +98,10 @@ export const mapNotNull: MapNotNull = curry2(function* (
 
 type MapIndexedNotNull = {
   <A, B, TIndex>(mapper: (element: A, index: TIndex) => B): (
-    source: WithEntries<TIndex, A>
-  ) => Generator<A>;
-  <A, B, TIndex>(mapper: (element: A, index: TIndex) => B | null): (
-    source: Iterable<[TIndex, A]>
+    source: WithEntries<TIndex, A> | Iterable<Tuple2<TIndex, A>>
   ) => Generator<A>;
   <A, B, TIndex>(
-    source: Iterable<[TIndex, A]>,
-    mapper: (element: A, index: TIndex) => B | null
-  ): Generator<A>;
-  <A, B, TIndex>(
-    source: WithEntries<TIndex, A>,
+    source: WithEntries<TIndex, A> | Iterable<Tuple2<TIndex, A>>,
     mapper: (element: A, index: TIndex) => B
   ): Generator<A>;
 };
@@ -127,11 +120,26 @@ type MapIndexedNotNull = {
  * @param source
  * @param mapper
  */
-export const mapIndexedNotNull: MapIndexedNotNull = curry2(
-  (source: any, mapper?: any) => {
-    return;
+export const mapIndexedNotNull: MapIndexedNotNull = curry2(function* (
+  source: any,
+  mapper?: any
+) {
+  if (isWithEntries(source)) {
+    for (const [key, value] of source.entries()) {
+      const result = mapper(value, key);
+      if (isNotNull(result)) {
+        yield result;
+      }
+    }
+  } else {
+    for (const [key, value] of source) {
+      const result = mapper(value, key);
+      if (isNotNull(result)) {
+        yield result;
+      }
+    }
   }
-);
+});
 
 type Zip = {
   <B>(other: Iterable<B>): <A>(source: Iterable<A>) => Zipped<A, B>;
