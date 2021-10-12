@@ -3,7 +3,7 @@ import {
   getIterator,
   isFunction,
   isIterable,
-  isNotNull,
+  isNull,
   isPlainObject,
   isWithEntries,
 } from "./internal/is";
@@ -90,9 +90,10 @@ export const mapNotNull: MapNotNull = curry2(function* (
 ) {
   for (const element of source) {
     const x = mapper(element);
-    if (isNotNull(x)) {
-      yield x;
+    if (isNull(x)) {
+      continue;
     }
+    yield x;
   }
 });
 
@@ -127,16 +128,18 @@ export const mapIndexedNotNull: MapIndexedNotNull = curry2(function* (
   if (isWithEntries(source)) {
     for (const [key, value] of source.entries()) {
       const result = mapper(value, key);
-      if (isNotNull(result)) {
-        yield result;
+      if (isNull(result)) {
+        continue;
       }
+      yield result;
     }
   } else {
     for (const [key, value] of source) {
       const result = mapper(value, key);
-      if (isNotNull(result)) {
-        yield result;
+      if (isNull(result)) {
+        continue;
       }
+      yield result;
     }
   }
 });

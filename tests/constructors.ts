@@ -9,7 +9,7 @@ import {
 } from "../lib";
 import { first, last, len, nth } from "../lib/internal/len";
 import { InfiniteLoopError } from "../lib/internal/errors";
-import { isNotNull } from "../lib/internal/is";
+import { isNull } from "../lib/internal/is";
 import { pipe } from "../lib/internal/functools";
 
 describe("Feature: newGenerator", () => {
@@ -169,9 +169,7 @@ describe("Feature: count", () => {
         And: nth is $facts.nth.expected
         `,
       ({ then, when }) => {
-        const sut = isNotNull(when.start)
-          ? count(when.start, when.step)
-          : count();
+        const sut = isNull(when.start) ? count() : count(when.start, when.step);
         const actual = [...take(sut, when.taking)];
         expect(len(actual)).toBe(then.len);
         expect(first(actual)).toBe(then.first);
