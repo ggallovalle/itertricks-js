@@ -1,5 +1,4 @@
-import { isIterable, isNumber } from "./internal/is";
-import { Partitioned, Predicate } from "./internal/types";
+import { isNumber } from "./internal/is";
 import { curry2, curry3 } from "./internal/functools";
 
 type Take = {
@@ -25,8 +24,8 @@ export const take: Take = curry2(function* (source: any, n: any) {
     if (counter === n) {
       break;
     }
-    counter++;
     yield element;
+    counter++;
   }
 });
 
@@ -55,11 +54,13 @@ export const chunked: Chunked = curry2(function* (source: any, size: any) {
   for (const element of source) {
     counter++;
     accumulator.push(element);
-    if (counter == size) {
-      yield accumulator;
-      counter = 0;
-      accumulator = [];
+    if (counter !== size) {
+      continue;
     }
+    yield accumulator;
+    // reset
+    counter = 0;
+    accumulator = [];
   }
   if (accumulator.length !== 0) yield accumulator;
 });
@@ -107,32 +108,14 @@ export const windowed: Windowed = curry3(
     for (const element of source) {
       counter++;
       accumulator.push(element);
-      if (counter === size) {
-        yield accumulator;
-        counter = counter - (options.step ?? 0);
-        accumulator = accumulator.slice(options.step);
+      if (counter !== size) {
+        continue;
       }
+      yield accumulator;
+      // reset based on step
+      counter = counter - (options.step ?? 0);
+      accumulator = accumulator.slice(options.step);
     }
     if (options.partialWindow) yield accumulator;
   }
 );
-
-/**
- * Split the `source` based on the `predicate`. The matches would be located at the `right`,
- * the ones that did not matched will be located at the `left`.
- * @category parts
- * @public
- * @since 1.0.0
- * @version 1.0.0
- * @param predicate
- */
-export function partition<T>(
-  predicate: Predicate<T>
-): (source: Iterable<T>) => Partitioned<T, T>;
-export function partition<T>(
-  source: Iterable<T>,
-  predicate: Predicate<T>
-): Partitioned<T, T>;
-export function partition(x: any, y?: any): any {
-  return;
-}

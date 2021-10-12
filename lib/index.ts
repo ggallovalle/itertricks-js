@@ -1,4 +1,4 @@
-export { take, chunked, windowed, partition } from "./parts";
+export { take, chunked, windowed } from "./parts";
 export { range, newGenerator, count, cycle, repeat } from "./constructors";
 export {
   asCount,
@@ -24,6 +24,7 @@ export {
   mapNotNull,
   mapIndexedNotNull,
 } from "./transformations";
+export { partition } from "./filters";
 // mapIndexed,
 // mapIndexedNotNull,
 // mapNotNull,

@@ -24,10 +24,10 @@ export interface Partitioned<E, A> {
   /**
    * Others, things that did not matched the predicate.
    */
-  readonly left: E;
+  readonly left: E[];
 
   /**
    * Matches, things that did matched the predicate.
    */
-  readonly right: A;
+  readonly right: A[];
 }

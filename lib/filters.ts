@@ -1,4 +1,4 @@
-import { Predicate } from "./internal/types";
+import { Partitioned, Predicate } from "./internal/types";
 import { curry2 } from "./internal/functools";
 
 type Filter = {
@@ -107,3 +107,31 @@ type None = {
 export const none: None = curry2((source: any, predicate?: any): any => {
   return;
 });
+
+type Partition = {
+  <T>(predicate: Predicate<T>): (source: Iterable<T>) => Partitioned<T, T>;
+  <T>(source: Iterable<T>, predicate: Predicate<T>): Partitioned<T, T>;
+};
+/**
+ * Split the `source` based on the `predicate`. The matches would be located in the `right`
+ * property, the ones that did not matched will be located in the `left` property.
+ * @category filters
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ * @param predicate
+ */
+export const partition: Partition = curry2(
+  (source: any, predicate?: any): any => {
+    const left = [];
+    const right = [];
+    for (const element of source) {
+      if (predicate(element)) {
+        right.push(element);
+      } else {
+        left.push(element);
+      }
+    }
+    return { left, right };
+  }
+);

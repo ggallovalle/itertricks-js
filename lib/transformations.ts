@@ -1,13 +1,6 @@
 import { Mapper, Tuple2, WithEntries, Zipped } from "./internal/types";
-import {
-  getIterator,
-  isFunction,
-  isIterable,
-  isNull,
-  isPlainObject,
-  isWithEntries,
-} from "./internal/is";
-import { curry2, curry3_2 } from "./internal/functools";
+import { getIterator, isNull, isWithEntries } from "./internal/is";
+import { curry2 } from "./internal/functools";
 
 type Map = {
   <A, B>(mapper: Mapper<A, B>): (source: Iterable<A>) => Generator<B>;

@@ -1,4 +1,4 @@
-import { asArray, filter, filterNot, range } from "../lib";
+import { asArray, filter, filterNot, partition, range } from "../lib";
 import { pipe } from "../lib/internal/functools";
 import { gt, lt } from "../lib/internal/mathtools";
 import { first, last, len } from "../lib/internal/len";
@@ -96,5 +96,27 @@ describe("filterNot", () => {
       expect(first(actual)).toBeUndefined();
       expect(last(actual)).toBeUndefined();
     });
+  });
+});
+
+describe("partition", () => {
+  describe("when not a single match", () => {
+    const actual = pipe(range(10), partition(gt(10)));
+    test("'right' side would be empty", () => {
+      expect(len(actual.right)).toBe(0);
+    });
+    test("'left' side would contain all the elements", () => {
+      expect(len(actual.left)).toBe(11);
+      expect(first(actual.left)).toBe(0);
+      expect(last(actual.left)).toBe(10);
+    });
+  });
+
+  test("when matches are distributed", () => {
+    const actual = pipe(range(10), partition(lt(3)));
+    expect(len(actual.right)).toBe(3);
+    expect(len(actual.left)).toBe(8);
+    expect(first(actual.right)).toBe(0);
+    expect(first(actual.left)).toBe(3);
   });
 });
