@@ -25,31 +25,24 @@ export function isObject(source: unknown): source is object {
 }
 
 export function isIterable(source: unknown): source is Iterable<any> {
-  if (isNotNull(source)) {
-    return isNotNull(source[Symbol.iterator]);
-  }
-  return false;
+  // @ts-expect-error
+  return isNotNull(source[Symbol.iterator]);
 }
 
-export function isGenerator(source: unknown): source is Generator<any> {
-  if (isIterable(source)) {
-    // @ts-expect-error
-    return isNotNull(source.next);
-  }
-  return false;
+export function isIterator(source: unknown): source is Generator<any> {
+  // @ts-expect-error
+  return isNotNull(source.next);
 }
 
 export function getIterator(source: unknown): Iterator<unknown> {
-  if (isNotNull(source)) {
-    if (isIterable(source)) {
-      return source[Symbol.iterator]();
-    }
-    if (isGenerator(source)) {
-      return source;
-    }
+  if (isIterable(source)) {
+    return source[Symbol.iterator]();
+  }
+  if (isIterator(source)) {
+    return source;
   }
 
-  throw new Error(`${source} is neither an Iterable nor a Generator`);
+  throw new Error(`${source} is neither an Iterable nor a Iterator`);
 }
 
 export function isWithEntries(source: any): source is WithEntries<any, any> {

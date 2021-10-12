@@ -142,16 +142,8 @@ export const mapIndexedNotNull: MapIndexedNotNull = curry2(function* (
 });
 
 type Zip = {
-  <B>(other: Iterable<B>): <A>(source: Iterable<A>) => Zipped<A, B>;
-  <B, A, TResult>(other: Iterable<B>, mapper: (a: A, b: B) => TResult): (
-    source: Iterable<A>
-  ) => TResult[];
-  <A, B>(source: Iterable<A>, other: Iterable<B>): Zipped<A, B>;
-  <A, B, TResult>(
-    source: Iterable<A>,
-    other: Iterable<B>,
-    mapper: (a: A, b: B) => TResult
-  ): TResult[];
+  <B>(other: Iterable<B>): <A>(source: Iterable<A>) => Generator<Tuple2<A, B>>;
+  <A, B>(source: Iterable<A>, other: Iterable<B>): Generator<Tuple2<A, B>>;
 };
 
 /**
@@ -159,41 +151,24 @@ type Zip = {
  * the result is the smaller size, the element after that in the larger `source` are
  * not included in the result.
  *
- * If `mapper` is provided call it for zipped element.
- *
  * @category transformers
  * @public
  * @since 1.0.0
  * @version 1.0.0
  * @param source
  * @param other
- * @param mapper
  */
-export const zip: Zip = curry3_2(
-  isIterable,
-  (x) => x == null || isFunction(x),
-  (source: any, other: any, mapper: any) => {
-    const firstIter = getIterator(source);
-    const secondIter = getIterator(other);
-    const accumulator = [];
-    let first = firstIter.next();
-    let second = secondIter.next();
-    if (mapper != null) {
-      while (first.done === second.done && (!first.done || !first.done)) {
-        accumulator.push(mapper(first.value, second.value));
-        first = firstIter.next();
-        second = secondIter.next();
-      }
-    } else {
-      while (first.done === second.done && (!first.done || !first.done)) {
-        accumulator.push([first.value, second.value]);
-        first = firstIter.next();
-        second = secondIter.next();
-      }
-    }
-    return accumulator;
+export const zip: Zip = curry2(function* (source: any, other: any) {
+  const firstIter = getIterator(source);
+  const secondIter = getIterator(other);
+  let first = firstIter.next();
+  let second = secondIter.next();
+  while (first.done === second.done && (!first.done || !first.done)) {
+    yield [first.value, second.value];
+    first = firstIter.next();
+    second = secondIter.next();
   }
-);
+});
 
 /**
  * Split a zipped array, where the first element of the returned array is all the elements
