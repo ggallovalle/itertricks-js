@@ -1,98 +1,125 @@
-import { asArray, chunked, range, take, windowed } from "../lib";
-import { len } from "../lib/internal/len";
+import {
+  all,
+  asArray,
+  chunked,
+  count,
+  empty,
+  range,
+  take,
+  windowed,
+} from "../lib";
+import { first, last, len, nth } from "../lib/internal/len";
 import { pipe } from "../lib/internal/functools";
 
-describe("itertricks.parts", () => {
-  describe("take", () => {
-    test("`n=2` returns 2 elements", () => {
-      const source = range(3);
-      const actual = [...take(source, 2)];
-      expect(actual.length).toBe(2);
-      expect(actual).toEqual([0, 1]);
-    });
+describe("#take", () => {
+  describe("when there source len is less than what is taken", () => {
+    // act
+    const actual = pipe(range(10), take(1000), asArray);
 
-    test("`n` > `source`.length returns all source", () => {
-      const source = range(3);
-      const actual = [...take(source, 1000)];
-      expect(actual.length).toBe(4);
-      expect(actual).toEqual([0, 1, 2, 3]);
+    // assert
+    test("then what is taken len is source len", () => {
+      expect(len(actual)).toBe(11);
     });
+  });
+});
 
-    test("curried version", () => {
-      const actual = pipe(range(3), take(1000), asArray);
-      expect(actual.length).toBe(4);
-      expect(actual).toEqual([0, 1, 2, 3]);
+describe("#chunked", () => {
+  describe("when source length is par and the size of chunk is par", () => {
+    // act
+    const actual = pipe(count(), take(4), chunked(2), asArray);
+
+    // assert
+    test("then each chunk has the same size", () => {
+      expect(pipe(actual, first, len)).toBe(pipe(actual, last, len));
     });
   });
 
-  describe("chunked", () => {
-    test("`size=2` and source par", () => {
-      const source = range(3);
-      const actual = [...chunked(source, 2)];
-      expect(actual.length).toBe(2);
-      expect(actual[0]).toEqual([0, 1]);
-      expect(actual[1]).toEqual([2, 3]);
-    });
+  describe("when source length is impar and the size of chunk is par", () => {
+    // arrange
+    const actual = pipe(count(), take(3), chunked(2), asArray);
 
-    test("`size=2` and source inpar", () => {
-      const source = range(2);
-      const actual = [...chunked(source, 2)];
-      expect(actual.length).toBe(2);
-      expect(actual[0]).toEqual([0, 1]);
-      expect(actual[1]).toEqual([2]);
-    });
-
-    test("`size` > `source`.length", () => {
-      const sut = range(2);
-      const res = [...chunked(sut, 1000)];
-      expect(res.length).toBe(1);
-      expect(res[0]).toEqual([0, 1, 2]);
-    });
-
-    test("throws when `size` <= 0", () => {
-      const sut = range(2);
-      expect(() => {
-        const res = [...chunked(sut, 0)];
-      }).toThrow(RangeError);
-    });
-
-    test("curried version", () => {
-      const res = pipe(range(2), chunked(1000), asArray);
-      expect(res.length).toBe(1);
-      expect(res[0]).toEqual([0, 1, 2]);
+    // assert
+    test("then the last chunk has different size", () => {
+      expect(pipe(actual, first, len)).not.toBe(pipe(actual, last, len));
     });
   });
 
-  describe("windowed", () => {
-    test("`size=3` and `len=5` and default step", () => {
-      const source = range(1, 5);
-      const actual = [...windowed(source, 3)];
-      expect(len(actual)).toBe(3);
-      expect(actual[0]).toEqual([1, 2, 3]);
-      expect(actual[len(actual) - 1]).toEqual([3, 4, 5]);
-    });
+  describe("when source length is less than chunk size", () => {
+    // act
+    const actual = pipe(count(), take(3), chunked(1000), asArray);
 
-    test("`opts.partialWindow=true`", () => {
-      const source = range(1, 5);
-      const actual = [...windowed(source, 3, { partialWindow: true })];
-      expect(len(actual)).toBe(4);
-      expect(actual[0]).toEqual([1, 2, 3]);
-      expect(actual[len(actual) - 1]).toEqual([4, 5]);
+    // assert
+    test("then there is only one chunk", () => {
+      expect(len(actual)).toBe(1);
     });
+  });
 
-    test("`opts.step=3`", () => {
-      const source = range(1, 10);
-      const actual = [...windowed(source, 5, { step: 3 })];
-      expect(len(actual)).toBe(2);
-      expect(actual[0]).toEqual([1, 2, 3, 4, 5]);
-      expect(actual[1]).toEqual([4, 5, 6, 7, 8]);
+  describe("when the chunk size is less than 1", () => {
+    // act
+    const actual = () => {
+      pipe(count(), take(1), chunked(0), asArray);
+    };
+
+    // assert
+    test("then it throws an error", () => {
+      expect(actual).toThrow(RangeError);
     });
+  });
+});
 
-    test("curried", () => {
-      const actual = pipe(range(1, 10), windowed(5, { step: 3 }), asArray);
-      expect(len(actual)).toBe(2);
-      expect(actual[0]).toEqual([1, 2, 3, 4, 5]);
-      expect(actual[1]).toEqual([4, 5, 6, 7, 8]);
+describe("#windowed", () => {
+  describe("when no step or partial window passed", () => {
+    // arrange
+    const windowSize = 3;
+    // act
+    const actual = pipe(range(1, 5), windowed(windowSize), asArray);
+
+    // assert
+    test("then window step default to 1", () => {
+      // step - the second of the first is the same as the first of the second
+      expect(nth(2, pipe(actual, first))).toBe(first(nth(2, actual)));
+    });
+    test("and partial window default to false", () => {
+      const allTheSameSize = pipe(
+        actual,
+        all((x) => len(x) == windowSize)
+      );
+      // partialWindow - if it allowed partial window, this would be false
+      expect(allTheSameSize).toBe(true);
+    });
+  });
+
+  describe("when partial window is true", () => {
+    // arrange
+    const windowSize = 3;
+    // act
+    const actual = pipe(
+      range(1, 5),
+      windowed(windowSize, { partialWindow: true }),
+      asArray
+    );
+
+    // assert
+    test("then the last one has a different len", () => {
+      expect(pipe(actual, last, len)).not.toBe(windowSize);
+    });
+  });
+
+  describe("when source len is less than window size and partial window is false", () => {
+    // arrange
+    const sourceLen = 3;
+    const windowSize = 1000;
+    // act
+    const actual = pipe(
+      count(),
+      take(sourceLen),
+      windowed(windowSize),
+      asArray
+    );
+
+    // assert
+    test("then is empty", () => {
+      expect(empty(actual)).toBe(true);
     });
   });
 });
