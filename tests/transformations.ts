@@ -213,30 +213,30 @@ describe("#zip", () => {
   describe("when source and other have the same len", () => {
     // arrange
     const howMany = 4;
-    const source = pipe(count(1), take(howMany), asArray);
-    const other = pipe(count(15), take(howMany), asArray);
+    const left = pipe(count(1), take(howMany), asArray);
+    const right = pipe(count(15), take(howMany), asArray);
     // act
-    const actual = pipe(source, zip(other), asArray);
+    const actual = pipe(left, zip(right), asArray);
 
     // assert
     test("then they are both 'consumed' to the end", () => {
       const [indexZero, indexOne] = unzip(actual);
-      expect(indexZero).toEqual(source);
-      expect(indexOne).toEqual(other);
+      expect(indexZero).toEqual(left);
+      expect(indexOne).toEqual(right);
     });
   });
 
   describe("when one of the sources len is less than the other", () => {
     // arrange
     const howMany = 4;
-    const source = pipe(count(1), take(howMany), asArray);
-    const other = pipe(count(15), take(howMany * 2), asArray);
+    const left = pipe(count(1), take(howMany), asArray);
+    const right = pipe(count(15), take(howMany * 2), asArray);
     // act
-    const actual = pipe(source, zip(other), asArray);
+    const actual = pipe(left, zip(right), asArray);
 
     // assert
     test("then only takes as much as the source with the smallest len", () => {
-      expect(len(actual)).toEqual(len(source));
+      expect(len(actual)).toEqual(len(left));
     });
   });
 });

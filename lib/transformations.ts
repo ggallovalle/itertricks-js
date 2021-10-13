@@ -3,15 +3,20 @@ import { getIterator, isNull, isWithEntries } from "./internal/is";
 import { curry2 } from "./internal/functools";
 
 type Map = {
-  <A, B>(mapper: Mapper<A, B>): (source: Iterable<A>) => Generator<B>;
-  <A, B>(source: Iterable<A>, mapper: Mapper<A, B>): Generator<B>;
+  <TValue, TResult>(mapper: Mapper<TValue, TResult>): (
+    source: Iterable<TValue>
+  ) => Generator<TResult>;
+  <TValue, TResult>(
+    source: Iterable<TValue>,
+    mapper: Mapper<TValue, TResult>
+  ): Generator<TResult>;
 };
 
 /**
  * Create a new iterator populated with the results of calling the `mapper` for each
  * element in the `source`.
  *
- * @category transformers
+ * @category transformations
  * @public
  * @since 1.0.0
  * @version 1.0.0
@@ -40,7 +45,7 @@ type MapIndexed = {
  * `Array`, `Map`, `Set` or any object with an `entries()` method which returns an iterable of
  * key value pairs.
  *
- * @category transformers
+ * @category transformations
  * @public
  * @since 1.0.0
  * @version 1.0.0
@@ -63,14 +68,19 @@ export const mapIndexed: MapIndexed = curry2(function* (
 });
 
 type MapNotNull = {
-  <A, B>(mapper: Mapper<A, B | null>): (source: Iterable<A>) => Generator<B>;
-  <A, B>(source: Iterable<A>, mapper: Mapper<A, B | null>): Generator<B>;
+  <TValue, TResult>(mapper: Mapper<TValue, TResult | null>): (
+    source: Iterable<TValue>
+  ) => Generator<TResult>;
+  <TValue, TResult>(
+    source: Iterable<TValue>,
+    mapper: Mapper<TValue, TResult | null>
+  ): Generator<TResult>;
 };
 
 /**
  * Like {@link map} but if mapper returns `null` or `undefined`, do not include it in the result.
  *
- * @category transformers
+ * @category transformations
  * @public
  * @since 1.0.0
  * @version 1.0.0
@@ -109,7 +119,7 @@ type MapIndexedNotNull = {
  * @remarks
  * The behaviour of applying it into a plain object is the same as [MDN Object.entries](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries)
  *
- * @category transformers
+ * @category transformations
  * @public
  * @since 1.0.0
  * @version 1.0.0
@@ -140,8 +150,12 @@ export const mapIndexedNotNull: MapIndexedNotNull = curry2(function* (
 });
 
 type Zip = {
-  <B>(other: Iterable<B>): <A>(source: Iterable<A>) => Generator<Tuple2<A, B>>;
-  <A, B>(source: Iterable<A>, other: Iterable<B>): Generator<Tuple2<A, B>>;
+  <TRight>(right: Iterable<TRight>): <TLeft>(
+    left: Iterable<TLeft>
+  ) => Generator<Tuple2<TLeft, TRight>>;
+  <TLeft, TRight>(left: Iterable<TLeft>, right: Iterable<TRight>): Generator<
+    Tuple2<TLeft, TRight>
+  >;
 };
 
 /**
@@ -149,22 +163,22 @@ type Zip = {
  * the result is the smaller size, the element after that in the larger `source` are
  * not included in the result.
  *
- * @category transformers
+ * @category transformations
  * @public
  * @since 1.0.0
  * @version 1.0.0
- * @param source
- * @param other
+ * @param right
+ * @param left
  */
-export const zip: Zip = curry2(function* (source: any, other: any) {
-  const firstIter = getIterator(source);
-  const secondIter = getIterator(other);
-  let first = firstIter.next();
-  let second = secondIter.next();
-  while (first.done === second.done && (!first.done || !first.done)) {
-    yield [first.value, second.value];
-    first = firstIter.next();
-    second = secondIter.next();
+export const zip: Zip = curry2(function* (leftSource: any, rightSource: any) {
+  const leftIter = getIterator(leftSource);
+  const rightIter = getIterator(rightSource);
+  let left = leftIter.next();
+  let right = rightIter.next();
+  while (left.done === right.done && (!left.done || !left.done)) {
+    yield [left.value, right.value];
+    left = leftIter.next();
+    right = rightIter.next();
   }
 });
 
@@ -173,19 +187,21 @@ export const zip: Zip = curry2(function* (source: any, other: any) {
  * from what it was the `source` and the second element of such array is what it was the
  * `other`. See {@link zip} for a better understanding.
  *
- * @category transformers
+ * @category transformations
  * @public
  * @since 1.0.0
  * @version 1.0.0
  * @param source
  */
-export function unzip<A, B>(source: Zipped<A, B>): Tuple2<A[], B[]> {
-  const accA: A[] = [];
-  const accB: B[] = [];
+export function unzip<TLeft, TRight>(
+  source: Zipped<TLeft, TRight>
+): Tuple2<TLeft[], TRight[]> {
+  const leftAcc: TLeft[] = [];
+  const rightAcc: TRight[] = [];
 
-  for (const [a, b] of source) {
-    accA.push(a);
-    accB.push(b);
+  for (const [left, right] of source) {
+    leftAcc.push(left);
+    rightAcc.push(right);
   }
-  return [accA, accB];
+  return [leftAcc, rightAcc];
 }

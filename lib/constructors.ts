@@ -1,4 +1,5 @@
 import { InfiniteLoopError } from "./internal/errors";
+import { isNull } from "./internal/is";
 
 /**
  * Returns a Generator defined by the starting value `initial` and the function `f` which
@@ -62,7 +63,7 @@ export function* range(
       "When step is 0 then you will have an infinite loop."
     );
   }
-  if (stop == null) {
+  if (isNull(stop)) {
     stop = start;
     start = 0;
   }
