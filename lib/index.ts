@@ -14,7 +14,7 @@ export {
   scanFold,
   scanFoldRight,
 } from "./collectors";
-export { filter, filterNot, some, none, all } from "./filters";
+export { filter, filterNot, partition } from "./filters";
 // filterIndexed
 export {
   zip,
@@ -24,7 +24,7 @@ export {
   mapNotNull,
   mapIndexedNotNull,
 } from "./transformations";
-export { partition } from "./filters";
+export { none, some, all, empty, lessThan, moreThan } from "./predicates";
 // mapIndexed,
 // mapIndexedNotNull,
 // mapNotNull,

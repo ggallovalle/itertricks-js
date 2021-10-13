@@ -65,20 +65,20 @@ export const chunked: Chunked = curry2(function* (source: any, size: any) {
   if (accumulator.length !== 0) yield accumulator;
 });
 
-const _windowedDefaultOptions = {
-  step: 1,
-  partialWindow: false,
-};
-
 type Windowed = {
   (size: number, options?: { step?: number; partialWindow?: boolean }): <T>(
     source: Iterable<T>
-  ) => Generator<T>;
+  ) => Generator<T[]>;
   <T>(
     source: Iterable<T>,
     size: number,
     options?: { step?: number; partialWindow?: boolean }
   ): Generator<T[]>;
+};
+
+const _windowedDefaultOptions = {
+  step: 1,
+  partialWindow: false,
 };
 
 /**

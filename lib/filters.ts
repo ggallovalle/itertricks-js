@@ -50,64 +50,6 @@ export const filterNot: FilterNot = curry2(function* (
   }
 });
 
-type Some = {
-  <T>(predicate: Predicate<T>): (source: Iterable<T>) => boolean;
-  <T>(source: Iterable<T>, predicate: Predicate<T>): boolean;
-};
-
-/**
- * Test if some of the elements matches the `predicate`.
- *
- * @category filters
- * @public
- * @since 1.0.0
- * @version 1.0.0
- * @param source
- * @param predicate
- */
-export const some: Some = curry2((source: any, predicate?: any): any => {
-  return;
-});
-
-type All = {
-  <T>(predicate: Predicate<T>): (source: Iterable<T>) => boolean;
-  <T>(source: Iterable<T>, predicate: Predicate<T>): boolean;
-};
-
-/**
- * Test if all the elements matches the `predicate`.
- *
- * @category filters
- * @public
- * @since 1.0.0
- * @version 1.0.0
- * @param source
- * @param predicate
- */
-export const all: All = curry2((source: any, predicate?: any): any => {
-  return;
-});
-
-type None = {
-  <T>(predicate: Predicate<T>): (source: Iterable<T>) => boolean;
-  <T>(source: Iterable<T>, predicate: Predicate<T>): boolean;
-};
-
-/**
- * Test if none the elements matches the `predicate`.
- *
- * @category filters
- * @public
- * @since 1.0.0
- * @version 1.0.0
- * @param source
- * @param predicate
- */
-
-export const none: None = curry2((source: any, predicate?: any): any => {
-  return;
-});
-
 type Partition = {
   <T>(predicate: Predicate<T>): (source: Iterable<T>) => Partitioned<T, T>;
   <T>(source: Iterable<T>, predicate: Predicate<T>): Partitioned<T, T>;
