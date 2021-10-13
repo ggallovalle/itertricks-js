@@ -1,7 +1,17 @@
-import { all, count, empty, none, range, some } from "../lib";
-import { pipe } from "../lib/internal/functools";
+import {
+  all,
+  asArray,
+  count,
+  empty,
+  newGenerator,
+  none,
+  range,
+  some,
+} from "../lib";
+import { identity, pipe } from "../lib/internal/functools";
 import { eq, lt } from "../lib/internal/mathtools";
 import { moreThan, lessThan } from "../lib/predicates";
+import { toArray } from "typedoc/dist/lib/utils/array";
 
 describe("#empty", () => {
   test("when source is empty then is true", () => {
@@ -12,6 +22,11 @@ describe("#empty", () => {
   test("when source is not empty then is false", () => {
     const actual = empty(count(0, 2));
     expect(actual).toBe(false);
+  });
+
+  test("when source is null or undefined the is true", () => {
+    const actual = pipe(newGenerator(null, identity), asArray);
+    expect(empty(actual)).toBe(true);
   });
 });
 

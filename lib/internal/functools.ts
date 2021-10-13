@@ -1,5 +1,7 @@
 import { Predicate } from "./types";
 
+export const identity = <T>(a: T): T => a;
+
 export function curry2(f: Function): (a: any, b?: any) => any {
   return function curried(a, b) {
     if (arguments.length === 1) {

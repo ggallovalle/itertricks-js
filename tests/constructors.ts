@@ -1,203 +1,199 @@
 import {
+  all,
   asArray,
-  asCount,
+  asCounter,
   count,
   cycle,
+  empty,
   newGenerator,
   range,
+  repeat,
   take,
 } from "../lib";
-import { first, last, len, nth } from "../lib/internal/len";
+import { first, len, nth } from "../lib/internal/len";
 import { InfiniteLoopError } from "../lib/internal/errors";
-import { isNull } from "../lib/internal/is";
-import { pipe } from "../lib/internal/functools";
+import { identity, pipe } from "../lib/internal/functools";
+import { add, eq } from "../lib/internal/mathtools";
 
-describe("Feature: newGenerator", () => {
-  describe("Scenario: Infinite iterable", () => {
-    type newGeneratorTestCases<T> = {
-      params: [seed: T, f: (a: T) => T | null];
-      facts: {
-        len: number;
-        first: number;
-        last: number;
-      };
-      others: {
-        taking: number;
-      };
-    };
-    test.each<newGeneratorTestCases<number>>([
-      {
-        params: [
-          1,
-          function plusOne(x) {
-            return x + 1;
-          },
-        ],
-        others: {
-          taking: 5,
-        },
-        facts: {
-          len: 5,
-          first: 1,
-          last: 5,
-        },
-      },
-    ])(
-      `When: Seed is $params
-        Then: len is $facts.len
-        And: first is $facts.len
-        And: last is $facts.last
-            `,
-      ({ params, facts, others }) => {
-        const sut = newGenerator(...params);
-        const actual = [...take(sut, others.taking)];
-        expect(len(actual)).toBe(facts.len);
-        expect(first(actual)).toBe(facts.first);
-        expect(last(actual)).toBe(facts.last);
-      }
-    );
-  });
+describe("#newGenerator", () => {
+  describe("when an infinite generator is created", () => {
+    // arrange
+    const taking = 5;
+    // act
+    const actual = pipe(newGenerator(0, add()), take(taking), asArray);
 
-  test("finite iterator", () => {
-    const sut = newGenerator(1, (x) => (x < 8 ? x + 2 : null));
-    const actual = [...sut];
-    expect(len(actual)).toBe(5);
-    expect(first(actual)).toBe(1);
-    expect(nth(2, actual)).toBe(3);
-    expect(last(actual)).toBe(9);
-  });
-
-  test("when `seed=null` actual MUST be empty", () => {
-    const sut = newGenerator(null, () => null);
-    const actual = [...sut];
-    expect(len(actual)).toBe(0);
-  });
-});
-
-describe("Feature: range", () => {
-  test("only pass `stop`", () => {
-    const sut = [...range(3)];
-    expect(sut.length).toBe(4);
-    expect(sut[0]).toBe(0);
-    expect(sut[sut.length - 1]).toBe(3);
-  });
-
-  test("`step=2`", () => {
-    const sut = [...range(0, 5, 2)];
-    expect(sut.length).toBe(3);
-    expect(sut[0]).toBe(0);
-    expect(sut[sut.length - 1]).toBe(4);
-  });
-
-  test("`step < 0`", () => {
-    const sut = [...range(5, 0, -1)];
-    expect(sut.length).toBe(6);
-    expect(sut[0]).toBe(5);
-    expect(sut[sut.length - 1]).toBe(0);
-  });
-
-  describe("throw infinite loops errors", () => {
-    test("`range=0`", () => {
-      expect(() => {
-        const sut = [...range(1, 2, 0)];
-      }).toThrow(InfiniteLoopError);
-    });
-
-    test("`start` > `stop` in incrementing counter", () => {
-      expect(() => {
-        const sut = [...range(2, 1)];
-      }).toThrow(InfiniteLoopError);
-    });
-
-    test("`start` < `stop` in decrementing counter", () => {
-      expect(() => {
-        const sut = [...range(4, 5, -1)];
-      }).toThrow(InfiniteLoopError);
+    // assert
+    test("then you can take as much as you want", () => {
+      expect(len(actual)).toBe(taking);
     });
   });
-});
 
-describe("Feature: count", () => {
-  describe("Scenario: make it finite", () => {
-    type countTestCases<T> = {
-      then: {
-        len: number;
-        first: T;
-        last: T;
-        nth: number;
-      };
-      when: {
-        start?: number;
-        step?: number;
-        taking: number;
-        nth: T;
-      };
-    };
-    test.each<countTestCases<number>>([
-      {
-        when: {
-          taking: 20,
-          nth: 5,
-        },
-        then: {
-          len: 20,
-          first: 0,
-          last: 19,
-          nth: 4,
-        },
-      },
-      {
-        when: {
-          taking: 5,
-          start: 1000,
-          step: 4,
-          nth: 3,
-        },
-        then: {
-          len: 5,
-          first: 1000,
-          last: 1016,
-          nth: 1008,
-        },
-      },
-    ])(
-      `When: Params is $params
-        And: nth is $facts.nth.x
-        Then: len is $facts.len
-        And: first is $facts.first
-        And: last is $facts.last
-        And: nth is $facts.nth.expected
-        `,
-      ({ then, when }) => {
-        const sut = isNull(when.start) ? count() : count(when.start, when.step);
-        const actual = [...take(sut, when.taking)];
-        expect(len(actual)).toBe(then.len);
-        expect(first(actual)).toBe(then.first);
-        expect(last(actual)).toBe(then.last);
-        expect(nth(when.nth, actual)).toBe(then.nth);
-      }
-    );
-  });
-});
-
-describe("Feature: cycle", () => {
-  test("it returns to the beginning", () => {
-    const actual = pipe(count(), take(3), cycle, take(4), asArray);
-    expect(len(actual)).toBe(4);
-    expect(last(actual)).toBe(0);
-  });
-
-  test("when cycles through 5 times, then it is shown 5 times", () => {
-    const taking = 10;
-    const cycleCount = 5;
+  describe("when a finate generator is created", () => {
+    // arrange
+    const stopAt = 4;
+    const taking = 1000;
+    // act
     const actual = pipe(
-      count(),
+      newGenerator(1, (a) => (a !== stopAt ? a + 1 : null)),
       take(taking),
-      cycle,
-      take(taking * cycleCount),
-      asCount((x) => x == 2)
+      asArray
     );
 
-    expect(actual).toBe(cycleCount);
+    // assert
+    test("then you can take only as much as is generated", () => {
+      expect(len(actual)).toBe(stopAt);
+      expect(len(actual)).toBeLessThan(taking);
+    });
+  });
+
+  describe("when initial is null", () => {
+    // act
+    const actual = pipe(newGenerator(null, identity), asArray);
+
+    // assert
+    test("then is empty", () => {
+      expect(empty(actual)).toBe(true);
+    });
+  });
+});
+
+describe("#range", () => {
+  test("when step is 0 then throw infinite loop error", () => {
+    // arrange
+    const actual = () => {
+      pipe(range(1, 2, 0), asArray);
+    };
+
+    // assert
+    expect(actual).toThrow(InfiniteLoopError);
+  });
+
+  describe("when using default parameter", () => {
+    // act
+    const actual = pipe(range(3), asArray);
+
+    // assert
+    test("then start at 0", () => {
+      expect(first(actual)).toBe(0);
+    });
+    test("and step is 1", () => {
+      expect(first(actual) + 1).toBe(nth(2, actual));
+    });
+  });
+
+  describe("when stop is less than start and going in incrementing order AKA step >= 1", () => {
+    // arrange
+    const actual1 = () => {
+      const actual = pipe(range(-1), asArray);
+    };
+    const actual2 = () => {
+      const actual = pipe(range(10, 4), asArray);
+    };
+
+    // assert
+    test("then throw infinite loop error", () => {
+      expect(actual1).toThrow(InfiniteLoopError);
+      expect(actual2).toThrow(InfiniteLoopError);
+    });
+  });
+
+  describe("when step is different than the original", () => {
+    // arrange
+    const step = 4;
+    // act
+    const actual = pipe(range(1, 10, step), asArray);
+
+    // assert
+    test("then n + 1 will be n + step", () => {
+      expect(nth(2, actual)).toBe(step + 1);
+    });
+  });
+
+  describe("when the step is bigger than the actual range", () => {
+    // act
+    const actual = pipe(range(1, 10, 1000), asArray);
+
+    // assert
+    test("then it has a len of 1", () => {
+      expect(len(actual)).toBe(1);
+    });
+  });
+
+  describe("when step is a negative number", () => {
+    // arrange
+    const start = 5;
+    const step = -1;
+    // act
+    const actual = pipe(range(start, 0, step), asArray);
+
+    // assert
+    test("then n + 1 is start - step", () => {
+      expect(nth(2, actual)).toBe(start + step);
+    });
+  });
+});
+
+describe("#count", () => {
+  describe("when is an infinite iterable", () => {
+    // arrange
+    const taking = 5;
+    // act
+    const actual = pipe(count(), take(taking), asArray);
+
+    // assert
+    test("then take as much as you want", () => {
+      expect(len(actual)).toBe(taking);
+    });
+  });
+
+  describe("when is finite iterable", () => {
+    // arrange
+    const taking = 5;
+    const stopAt = 3;
+    // act
+    const actual = pipe(range(1, stopAt), take(taking), asArray);
+
+    // assert
+    test("then take as much as you can", () => {
+      expect(len(actual)).toBe(stopAt);
+    });
+  });
+});
+
+describe("#cycle", () => {
+  describe("when you cycle n times", () => {
+    // arrange
+    const cycleTimes = 3;
+    const thisMany = 4;
+    // act
+    const actual = pipe(
+      range(1, thisMany),
+      cycle,
+      take(thisMany * cycleTimes),
+      asArray
+    );
+
+    // assert
+    test("then the elements are repeated n times", () => {
+      const counter = asCounter(actual);
+      expect(counter.get(1)).toBe(cycleTimes);
+    });
+    test("and it returns to the beginning of iterable", () => {
+      expect(first(actual)).toBe(nth(thisMany + 1, actual));
+    });
+  });
+});
+
+describe("#repeat", () => {
+  test("when given a value it repeats it indefinitely", () => {
+    // arrange
+    const taking = 3;
+    const toRepeat = 1;
+    // act
+    const actual = pipe(repeat(toRepeat), take(taking), asArray);
+
+    // assert
+    const allEqual = all(actual, eq(toRepeat));
+    expect(allEqual).toBe(true);
   });
 });

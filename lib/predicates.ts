@@ -1,6 +1,6 @@
 import { curry2, curry3 } from "./internal/functools";
 import { Predicate } from "./internal/types";
-import { isNumber } from "./internal/is";
+import { isNull, isNumber } from "./internal/is";
 
 type AtLeast = {
   <T>(n: number, predicate: Predicate<T>): (source: Iterable<T>) => boolean;

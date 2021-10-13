@@ -32,6 +32,7 @@ export function* newGenerator<T>(
  * @since 1.0.0
  * @version 1.0.0
  * @param stop
+ * @throws {InfiniteLoopError} - when ranges are mal formed.
  */
 export function range(stop: number): Generator<number>;
 /**
@@ -56,27 +57,26 @@ export function* range(
   stop?: number,
   step: number = 1
 ): Generator<number> {
+  if (step === 0) {
+    throw new InfiniteLoopError(
+      "When step is 0 then you will have an infinite loop."
+    );
+  }
   if (stop == null) {
     stop = start;
     start = 0;
   }
   // hottest (aka most frequent) path
-  if (step > 0) {
-    if (start > stop)
-      throw new InfiniteLoopError("`start` > `stop` in incrementing counter");
+  if (step > 0 && start < stop) {
     for (let index = start; index <= stop; index += step) {
       yield index;
     }
-  } else if (step < 0) {
-    if (start < stop)
-      throw new InfiniteLoopError("`start` < `stop` in decrementing counter");
+  } else if (step < 0 && start > stop) {
     for (let index = start; index >= stop; index += step) {
       yield index;
     }
   } else {
-    throw new InfiniteLoopError(
-      "With a `step=0` you will have an infinite loop"
-    );
+    throw new InfiniteLoopError("Bad range");
   }
 }
 
