@@ -25,3 +25,10 @@ export function last<T>(source: T[]): T {
 export function nth<T>(n: number, source: T[]): T {
   return source[n - 1];
 }
+
+/** @internal */
+export function sample<T>(source: T[]): { index: number; value: T } {
+  const index = Math.floor(Math.random() * len(source));
+  const value = source[index];
+  return { index, value };
+}

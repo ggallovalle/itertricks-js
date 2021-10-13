@@ -1,15 +1,6 @@
-import {
-  all,
-  asArray,
-  count,
-  filter,
-  filterNot,
-  none,
-  partition,
-  range,
-} from "../lib";
+import { asArray, filter, filterNot, partition, range } from "../lib";
 import { pipe } from "../lib/internal/functools";
-import { eq, gt, lt } from "../lib/internal/mathtools";
+import { gt, lt } from "../lib/internal/mathtools";
 import { first, last, len } from "../lib/internal/len";
 
 describe("#filter", () => {

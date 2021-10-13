@@ -25,13 +25,13 @@ export const map: Map = curry2(function* (source: any, mapper: any) {
 });
 
 type MapIndexed = {
-  <A, B, TIndex>(mapper: (element: A, index: TIndex) => B): (
-    source: WithEntries<TIndex, A> | Iterable<Tuple2<TIndex, A>>
-  ) => Generator<A>;
-  <A, B, TIndex>(
-    source: WithEntries<TIndex, A> | Iterable<Tuple2<TIndex, A>>,
-    mapper: (element: A, index: TIndex) => B
-  ): Generator<A>;
+  <TKey, TValue, TResult>(mapper: (key: TKey, value: TValue) => TResult): (
+    source: WithEntries<TKey, TValue> | Iterable<Tuple2<TKey, TValue>>
+  ) => Generator<TResult>;
+  <TKey, TValue, TResult>(
+    source: WithEntries<TKey, TValue> | Iterable<Tuple2<TKey, TValue>>,
+    mapper: (key: TKey, value: TValue) => TResult
+  ): Generator<TResult>;
 };
 
 /**
@@ -53,11 +53,11 @@ export const mapIndexed: MapIndexed = curry2(function* (
 ) {
   if (isWithEntries(source)) {
     for (const [key, value] of source.entries()) {
-      yield mapper(value, key);
+      yield mapper(key, value);
     }
   } else {
     for (const [key, value] of source) {
-      yield mapper(value, key);
+      yield mapper(key, value);
     }
   }
 });
@@ -91,13 +91,15 @@ export const mapNotNull: MapNotNull = curry2(function* (
 });
 
 type MapIndexedNotNull = {
-  <A, B, TIndex>(mapper: (element: A, index: TIndex) => B): (
-    source: WithEntries<TIndex, A> | Iterable<Tuple2<TIndex, A>>
-  ) => Generator<A>;
-  <A, B, TIndex>(
-    source: WithEntries<TIndex, A> | Iterable<Tuple2<TIndex, A>>,
-    mapper: (element: A, index: TIndex) => B
-  ): Generator<A>;
+  <TKey, TValue, TResult>(
+    mapper: (key: TKey, value: TValue) => TResult | null
+  ): (
+    source: WithEntries<TKey, TValue> | Iterable<Tuple2<TKey, TValue>>
+  ) => Generator<TResult>;
+  <TKey, TValue, TResult>(
+    source: WithEntries<TKey, TValue> | Iterable<Tuple2<TKey, TValue>>,
+    mapper: (key: TKey, value: TValue) => TResult | null
+  ): Generator<TResult>;
 };
 
 /**
@@ -120,7 +122,7 @@ export const mapIndexedNotNull: MapIndexedNotNull = curry2(function* (
 ) {
   if (isWithEntries(source)) {
     for (const [key, value] of source.entries()) {
-      const result = mapper(value, key);
+      const result = mapper(key, value);
       if (isNull(result)) {
         continue;
       }
@@ -128,7 +130,7 @@ export const mapIndexedNotNull: MapIndexedNotNull = curry2(function* (
     }
   } else {
     for (const [key, value] of source) {
-      const result = mapper(value, key);
+      const result = mapper(key, value);
       if (isNull(result)) {
         continue;
       }

@@ -1,206 +1,242 @@
 import {
   asArray,
+  count,
+  empty,
   map,
   mapIndexed,
   mapIndexedNotNull,
   mapNotNull,
-  newGenerator,
   range,
-  repeat,
   take,
   unzip,
   zip,
 } from "../lib";
-import { first, last, len, nth } from "../lib/internal/len";
+import { first, last, len, sample } from "../lib/internal/len";
 import { Tuple2, Zipped } from "../lib/internal/types";
 import { pipe } from "../lib/internal/functools";
 import { add } from "../lib/internal/mathtools";
 
-describe("map", () => {
-  test("curried", () => {
-    const actual = pipe(range(1, 10), map(add()), asArray);
-    expect(len(actual)).toBe(10);
-    expect(first(actual)).toBe(2);
-    expect(last(actual)).toBe(11);
-  });
+describe("#map", () => {
+  describe("when given a mapper", () => {
+    // arrange
+    const step = 3;
+    const mapper = add(step);
+    const howMany = 10;
+    // act
+    const actual = pipe(count(1), take(howMany), map(mapper), asArray);
 
-  test("non curried", () => {
-    const actual = pipe(map(range(1, 10), add()), asArray);
-    expect(len(actual)).toBe(10);
-    expect(first(actual)).toBe(2);
-    expect(last(actual)).toBe(11);
+    // assert
+    test("then it has the same len as the source", () => {
+      expect(len(actual)).toBe(howMany);
+    });
+    test("then the operation is applied to each of its members", () => {
+      expect(first(actual)).toEqual(1 + step);
+      expect(last(actual)).toEqual(howMany + step);
+      const random = sample(actual);
+      expect(random.value).toBe(random.index + 1 + step);
+    });
   });
 });
 
-describe("mapNotNull", () => {
-  test("regular map works", () => {
-    const actual = pipe(range(1, 10), mapNotNull(add()), asArray);
-    expect(len(actual)).toBe(10);
-    expect(first(actual)).toBe(2);
-    expect(last(actual)).toBe(11);
-  });
+describe("#mapNotNull", () => {
+  describe("when every mapper returns a not null value", () => {
+    // arrange
+    const howMany = 10;
+    const step = 1;
+    const mapper = add(step);
+    // act
+    const actual = pipe(range(1, howMany), mapNotNull(mapper), asArray);
 
-  test("if some is null, then it is not in the final result", () => {
-    const actual = pipe(
-      range(1, 10),
-      mapNotNull((x) => (x % 2 === 0 ? x * 2 : null)),
-      asArray
-    );
-    expect(len(actual)).toBe(5);
-    expect(first(actual)).toBe(4);
-    expect(last(actual)).toBe(20);
-  });
-});
-
-describe("mapIndexed", () => {
-  describe("WithEntries source", () => {
-    test("array", () => {
-      const actual = pipe(
-        ["a", "b", "c"],
-        mapIndexed((v, k) => v + k),
-        asArray
-      );
-      expect(first(actual)).toBe("a0");
-      expect(nth(2, actual)).toBe("b1");
-      expect(last(actual)).toBe("c2");
-    });
-
-    test("set", () => {
-      const actual = pipe(
-        new Set(["x", "x", "z"]),
-        mapIndexed((v, k) => v + k),
-        asArray
-      );
-      expect(first(actual)).toBe("xx");
-      expect(last(actual)).toBe("zz");
-    });
-
-    test("map", () => {
-      const actual = pipe(
-        new Map([
-          ["x", 25],
-          ["y", 40],
-          ["z", 50],
-        ]),
-        mapIndexed((v, k) => v + k),
-        asArray
-      );
-      expect(first(actual)).toBe("25x");
-      expect(nth(2, actual)).toBe("40y");
-      expect(last(actual)).toBe("50z");
+    // assert
+    test("then it behaves like a regular map", () => {
+      const random = sample(actual);
+      expect(random.value).toBe(random.index + 1 + step);
+      expect(len(actual)).toBe(howMany);
     });
   });
 
-  test("regular Tuple2 iterable", () => {
+  describe("when some of the mappers return null", () => {
+    // arrange
+    const howManyNulls = 4;
+    const taking = 10;
+    // act
     const actual = pipe(
-      repeat<Tuple2<string, string>>(["x", "y"]),
-      mapIndexed((v, k) => k + v),
-      take(20),
+      range(1, taking),
+      mapNotNull((x) => (x <= 4 ? null : x * 2)),
       asArray
     );
-    expect(first(actual)).toBe("xy");
-    expect(last(actual)).toBe("xy");
+
+    // assert
+    test("then the len will be source len - n times it was null", () => {
+      expect(len(actual)).toBe(taking - howManyNulls);
+    });
   });
 });
 
-describe("mapIndexedNotNull", () => {
-  test("ignores null in the result", () => {
+describe("#mapIndexed", () => {
+  describe("when source implements WithEntries :: () -> Tuple2", () => {
+    // arrange
+    const keys = ["x", "y", "z"];
+    const values = [25, 30, 40];
+    // act
     const actual = pipe(
-      newGenerator<Tuple2<string, number>>(["a", 0], ([k, v]) => [
-        String.fromCharCode(k.charCodeAt(0) + 1), // go from a to b and so on
-        v + 1,
-      ]),
-      take(5),
-      mapIndexedNotNull((v, k) => (v % 2 === 0 ? v + k : null)),
+      new Map(zip(keys, values)),
+      mapIndexed((key, value): Tuple2<string, number> => [key, value]),
       asArray
     );
-    expect(first(actual)).toBe("0a");
-    expect(len(actual)).toBe(3);
-    expect(last(actual)).toBe("4e");
+    const unzipped = unzip(actual);
+
+    // assert
+    test("then the key is passed in each step of the way", () => {
+      expect(first(unzipped)).toEqual(keys);
+    });
+    test("and also the value is passed", () => {
+      expect(last(unzipped)).toEqual(values);
+    });
+  });
+
+  describe("when source is Iterable Tuple2", () => {
+    // arrange
+    const keys = ["x", "y", "z"];
+    const values = [25, 30, 40];
+    // act
+    const actual = pipe(
+      zip(keys, values),
+      mapIndexed((key, value): Tuple2<string, number> => [key, value]),
+      asArray
+    );
+    const unzipped = unzip(actual);
+
+    // assert
+    test("then the key is passed in each step of the way", () => {
+      expect(first(unzipped)).toEqual(keys);
+    });
+    test("and also the value is passed", () => {
+      expect(last(unzipped)).toEqual(values);
+    });
   });
 });
 
-describe("unzip", () => {
-  test("zipped with contents", () => {
-    const a: Zipped<number, string> = [
+describe("#mapIndexedNotNull", () => {
+  describe("when every mapper returns a not null value", () => {
+    // arrange
+    const keys = ["x", "y", "z"];
+    const values = [25, 30, 40];
+    // act
+    const actual = pipe(
+      zip(keys, values),
+      mapIndexedNotNull((key, value): Tuple2<string, number> => [key, value]),
+      asArray
+    );
+    const unzipped = unzip(actual);
+
+    // assert
+    test("then it behaves like a regular mapIndexed", () => {
+      expect(first(unzipped)).toEqual(keys);
+      expect(last(unzipped)).toEqual(values);
+    });
+  });
+
+  describe("when some of the mappers return null", () => {
+    // arrange
+    const howManyNulls = 2;
+    const keys = ["a", "b", "c", "d", "e"];
+    const values = [1, 2, 3, 4, 5];
+    const taking = len(values);
+    // act
+    const actual = pipe(
+      zip(keys, values),
+      mapIndexedNotNull((key, value): Tuple2<string, number> | null =>
+        value <= howManyNulls ? null : [key, value]
+      ),
+      asArray
+    );
+
+    // assert
+    test("then the len will be source len - n times it was null", () => {
+      expect(len(actual)).toBe(taking - howManyNulls);
+    });
+  });
+});
+
+describe("#unzip", () => {
+  describe("when unzipped something with contents", () => {
+    // arrange
+    const zipped: Zipped<number, string> = [
       [1, "one"],
       [2, "two"],
       [3, "three"],
     ];
-    const [left, right] = unzip(a);
+    // act
+    const actual = unzip(zipped);
 
-    expect(first(left)).toBe(1);
-    expect(last(left)).toBe(3);
-    expect(first(right)).toBe("one");
-    expect(last(right)).toBe("three");
+    // assert
+    test("then it has a len of 2", () => {
+      expect(len(actual)).toBe(2);
+    });
+    test("and the first one contains all the index 0 of source", () => {
+      const indexZero = pipe(
+        zipped,
+        map(([zero]) => zero),
+        asArray
+      );
+      expect(actual[0]).toEqual(indexZero);
+    });
+    test("and the second one contains all the index 1 of source", () => {
+      const indexOne = pipe(
+        zipped,
+        map(([_, one]) => one),
+        asArray
+      );
+      expect(actual[1]).toEqual(indexOne);
+    });
   });
 
-  test("zipped without contents", () => {
-    const a: Zipped<number, string> = [];
-    const [left, right] = unzip(a);
+  describe("when unzipped something without contents", () => {
+    // arrange
+    const zipped: Zipped<number, string> = [];
+    // act
+    const actual = unzip(zipped);
 
-    expect(first(left)).toBeUndefined();
-    expect(last(left)).toBeUndefined();
-    expect(first(right)).toBeUndefined();
-    expect(last(right)).toBeUndefined();
+    // assert
+    test("then it still has a len of 2", () => {
+      expect(len(actual)).toBe(2);
+    });
+    test("but both are empty arrays", () => {
+      expect(empty(actual[0])).toBe(true);
+      expect(empty(actual[1])).toBe(true);
+    });
   });
 });
 
-describe("zip", () => {
-  describe("curried", () => {
-    test("zipped with contents of same length", () => {
-      const actual = pipe(range(1, 10), zip(range(15, 24)), asArray);
-      expect(first(actual)).toEqual([1, 15]);
-      expect(len(actual)).toBe(10);
-      expect(last(actual)).toEqual([10, 24]);
-    });
+describe("#zip", () => {
+  describe("when source and other have the same len", () => {
+    // arrange
+    const howMany = 4;
+    const source = pipe(count(1), take(howMany), asArray);
+    const other = pipe(count(15), take(howMany), asArray);
+    // act
+    const actual = pipe(source, zip(other), asArray);
 
-    test("zipped with first longer", () => {
-      const actual = pipe(range(1, 25), zip(range(15, 24)), asArray);
-      expect(first(actual)).toEqual([1, 15]);
-      expect(len(actual)).toBe(10);
-      expect(last(actual)).toEqual([10, 24]);
-    });
-
-    test("zipped with second longer", () => {
-      const actual = pipe(range(1, 10), zip(range(15, 30)), asArray);
-      expect(first(actual)).toEqual([1, 15]);
-      expect(len(actual)).toBe(10);
-      expect(last(actual)).toEqual([10, 24]);
+    // assert
+    test("then they are both 'consumed' to the end", () => {
+      const [indexZero, indexOne] = unzip(actual);
+      expect(indexZero).toEqual(source);
+      expect(indexOne).toEqual(other);
     });
   });
 
-  describe("not curried", () => {
-    test("zipped with contents of same length", () => {
-      const actual = pipe(zip(range(1, 10), range(15, 24)), asArray);
-      expect(first(actual)).toEqual([1, 15]);
-      expect(len(actual)).toBe(10);
-      expect(last(actual)).toEqual([10, 24]);
-    });
+  describe("when one of the sources len is less than the other", () => {
+    // arrange
+    const howMany = 4;
+    const source = pipe(count(1), take(howMany), asArray);
+    const other = pipe(count(15), take(howMany * 2), asArray);
+    // act
+    const actual = pipe(source, zip(other), asArray);
 
-    test("zipped with first longer", () => {
-      const actual = pipe(zip(range(1, 25), range(15, 24)), asArray);
-      expect(first(actual)).toEqual([1, 15]);
-      expect(len(actual)).toBe(10);
-      expect(last(actual)).toEqual([10, 24]);
-    });
-
-    test("zipped with second longer", () => {
-      const actual = pipe(zip(range(1, 10), range(15, 30)), asArray);
-      expect(first(actual)).toEqual([1, 15]);
-      expect(len(actual)).toBe(10);
-      expect(last(actual)).toEqual([10, 24]);
-    });
-
-    test("with mapper", () => {
-      const actual = pipe(
-        zip(range(1, 10), range(15, 30)),
-        map(([x, y]) => x + y),
-        asArray
-      );
-      expect(first(actual)).toEqual(16);
-      expect(len(actual)).toBe(10);
-      expect(last(actual)).toEqual(34);
+    // assert
+    test("then only takes as much as the source with the smallest len", () => {
+      expect(len(actual)).toEqual(len(source));
     });
   });
 });

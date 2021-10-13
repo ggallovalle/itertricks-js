@@ -3,6 +3,8 @@ import {
   asArray,
   count,
   empty,
+  lessThan,
+  moreThan,
   newGenerator,
   none,
   range,
@@ -10,8 +12,6 @@ import {
 } from "../lib";
 import { identity, pipe } from "../lib/internal/functools";
 import { eq, lt } from "../lib/internal/mathtools";
-import { moreThan, lessThan } from "../lib/predicates";
-import { toArray } from "typedoc/dist/lib/utils/array";
 
 describe("#empty", () => {
   test("when source is empty then is true", () => {
