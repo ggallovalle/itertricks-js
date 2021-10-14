@@ -1,4 +1,4 @@
-import { WithEntries } from "./types";
+import { Monoid, Semigroup, WithEntries } from "./types";
 
 export function isNull(source: unknown): source is any {
   return source == null;
@@ -43,4 +43,14 @@ export function getIterator(source: unknown): Iterator<unknown> {
 
 export function isWithEntries(source: any): source is WithEntries<any, any> {
   return isFunction(source.entries);
+}
+
+export function isMonoid(source: any): source is Monoid<any> {
+  //@ts-expect-error for some reason it says that its never
+  return !isNull(source) && isFunction(source.concat) && !isNull(source.empty);
+}
+
+export function isSemigroup(source: any): source is Semigroup<any> {
+  //@ts-expect-error for some reason it says that its never
+  return !isNull(source) && isFunction(source.concat);
 }

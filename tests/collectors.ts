@@ -4,14 +4,19 @@ import {
   asArray,
   asCount,
   asCounter,
+  empty,
+  fold,
   newGenerator,
   range,
+  reduce,
   repeat,
   take,
 } from "../lib";
-import { isArray } from "../lib/internal/is";
+import { isArray, isSemigroup } from "../lib/internal/is";
 import { add, eq, gt } from "../lib/internal/mathtools";
 import { len } from "../lib/internal/len";
+import { Monoid } from "../lib/internal/types";
+import { NotMonoidError } from "../lib/internal/errors";
 
 describe("#asArray", () => {
   describe("when an array is passed", () => {
@@ -102,6 +107,74 @@ describe("#asCounter", () => {
     test("and it counts the others correctly", () => {
       // because it counts for "value", "a", and "b"
       expect(len(actual)).toBe(3);
+    });
+  });
+});
+
+const monoidSum_: Monoid<number> = {
+  empty: 0,
+  concat: (a, b) => a + b,
+};
+
+describe("#fold", () => {
+  describe("when a monoid is passed", () => {
+    // act
+    const actual = pipe(range(1, 5), fold(monoidSum_));
+
+    // assert
+    test("then it works as a regular fold", () => {
+      expect(actual).toBe(15);
+    });
+  });
+
+  describe("when only a single argument passed and is not a monoid", () => {
+    // arrange
+    const actual = () => {
+      pipe(range(1, 5), fold(null as any));
+    };
+
+    // assert
+    test("then throws NotMonoidError", () => {
+      expect(actual).toThrow(NotMonoidError);
+    });
+  });
+
+  describe("when passed as regular concat and initial", () => {
+    // act
+    const actual = pipe(range(1, 5), fold(monoidSum_.empty, monoidSum_.concat));
+
+    // assert
+    test("then it works as a regular fold", () => {
+      expect(actual).toBe(15);
+    });
+  });
+});
+
+describe("#reduce", () => {
+  describe("when a semigroup is passed", () => {
+    // act
+    const actual = pipe(range(1, 5), reduce(monoidSum_));
+
+    // assert
+    test("then it works as a regular reduce", () => {
+      expect(actual).toBe(15);
+    });
+  });
+
+  describe("when passed as regular concat", () => {
+    // act
+    const actual = pipe(range(1, 5), reduce(monoidSum_.concat));
+
+    // assert
+    test("then it works as a regular reduce", () => {
+      expect(actual).toBe(15);
+    });
+  });
+
+  describe("when empty iterable", () => {
+    const actual = reduce([], monoidSum_);
+    test("then is empty", () => {
+      expect(actual).toBeUndefined();
     });
   });
 });

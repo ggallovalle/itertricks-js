@@ -2,7 +2,8 @@ import { add } from "./internal/mathtools";
 import { upsertMap } from "./internal/maptools";
 import { Monoid, Predicate, Semigroup } from "./internal/types";
 import { curry2, curry3 } from "./internal/functools";
-import { isFunction } from "./internal/is";
+import { getIterator, isFunction, isMonoid, isSemigroup } from "./internal/is";
+import { NotMonoidError } from "./internal/errors";
 
 /**
  * Collect `source` into an Array.
@@ -123,8 +124,25 @@ type Fold = {
  * @param initial
  * @param concat
  */
-export const fold: Fold = (source: any, initial?: any, concat?: any): any => {
-  return;
+export const fold: Fold = function curried(
+  source: any,
+  initial?: any,
+  concat?: any
+): any {
+  if (arguments.length === 1) {
+    if (!isMonoid(source)) {
+      throw new NotMonoidError();
+    }
+    return curried(source.empty, source.concat);
+  }
+  if (arguments.length === 2) {
+    return (_source: any) => curried(_source, source, initial);
+  }
+  let accumulator = initial;
+  for (const element of source) {
+    accumulator = concat(accumulator, element);
+  }
+  return accumulator;
 };
 
 /**
@@ -168,8 +186,21 @@ type Reduce = {
  * @param source
  * @param concat
  */
-export const reduce: Reduce = (source: any, concat?: any): any => {
-  return;
+export const reduce: Reduce = function curried(source: any, concat?: any): any {
+  if (arguments.length === 1) {
+    concat = isSemigroup(source) ? source.concat : source;
+    return (_source: any) => curried(_source, concat);
+  }
+
+  const iter = getIterator(source);
+  let first = iter.next();
+  let accumulator = first.value;
+  first = iter.next();
+  while (!first.done) {
+    accumulator = concat(accumulator, first.value);
+    first = iter.next();
+  }
+  return accumulator;
 };
 
 /**
