@@ -4,7 +4,6 @@ import {
   asArray,
   asCount,
   asCounter,
-  empty,
   fold,
   newGenerator,
   range,
@@ -15,11 +14,21 @@ import {
   scanFold,
   take,
 } from "../lib";
-import { isArray, isSemigroup } from "../lib/internal/is";
+import { isArray } from "../lib/internal/is";
 import { add, eq, gt } from "../lib/internal/mathtools";
 import { len } from "../lib/internal/len";
-import { Monoid } from "../lib/internal/types";
+import { Monoid, Semigroup } from "../lib/internal/types";
 import { NotMonoidError } from "../lib/internal/errors";
+
+const _monoidSum: Monoid<number> = {
+  empty: 0,
+  concat: (a, b) => a + b,
+};
+
+const _monoidStrConcat: Monoid<string> = {
+  empty: "",
+  concat: (a, b) => a + b,
+};
 
 describe("#asArray", () => {
   describe("when an array is passed", () => {
@@ -114,31 +123,104 @@ describe("#asCounter", () => {
   });
 });
 
-const monoidSum_: Monoid<number> = {
-  empty: 0,
-  concat: (a, b) => a + b,
-};
+describe("#reduce", () => {
+  _testReduce("reduce", _monoidSum, {
+    fn: reduce,
+    sut: pipe(range(1, 5), asArray),
+    actual: 15,
+  });
+});
 
-const monoidStrConcat_: Monoid<string> = {
-  empty: "",
-  concat: (a, b) => a + b,
-};
+describe("#reduceRight", () => {
+  _testReduce("reduceRight", _monoidStrConcat, {
+    fn: reduceRight,
+    sut: "abcd",
+    actual: "dcba",
+  });
+});
+
+describe("#scan", () => {
+  _testReduce("scan", _monoidStrConcat, {
+    fn: scan,
+    sut: "abcd",
+    actual: ["a", "ab", "abc", "abcd"],
+  });
+});
 
 describe("#fold", () => {
-  describe("when a monoid is passed", () => {
+  _testFold("fold", _monoidSum, {
+    fn: fold,
+    sut: pipe(range(1, 5), asArray),
+    actual: 15,
+    actualInitial: _monoidSum.empty,
+  });
+});
+
+describe("#scanFold", () => {
+  _testFold("scanFold", _monoidStrConcat, {
+    fn: scanFold,
+    sut: "abcd",
+    actual: ["", "a", "ab", "abc", "abcd"],
+    actualInitial: [""],
+  });
+});
+
+// -----------
+// [[[ internal
+// -----------
+
+function _testReduce(
+  name: string,
+  semi: Semigroup<any>,
+  t: { fn: any; sut: any; actual: any }
+) {
+  describe("when a semigroup is passed", () => {
     // act
-    const actual = pipe(range(1, 5), fold(monoidSum_));
+    const actual = t.fn(t.sut, semi);
 
     // assert
-    test("then it works as a regular fold", () => {
-      expect(actual).toBe(15);
+    test(`then it works as a regular ${name}`, () => {
+      expect(actual).toEqual(t.actual);
+    });
+  });
+
+  describe("when passed as regular concat", () => {
+    // act
+    const actual = t.fn(t.sut, semi.concat);
+
+    // assert
+    test(`then it works as a regular ${name}`, () => {
+      expect(actual).toEqual(t.actual);
+    });
+  });
+
+  describe("when empty iterable", () => {
+    const actual = t.fn([], semi);
+    test("then is empty", () => {
+      expect(actual).toEqual([]);
+    });
+  });
+}
+
+function _testFold(
+  name: string,
+  monoid: Monoid<any>,
+  t: { fn: any; sut: any; actual: any; actualInitial: any }
+) {
+  describe("when a monoid is passed", () => {
+    // act
+    const actual = pipe(t.sut, t.fn(monoid));
+
+    // assert
+    test(`then it works as a regular ${name}`, () => {
+      expect(actual).toEqual(t.actual);
     });
   });
 
   describe("when only a single argument passed and is not a monoid", () => {
     // arrange
     const actual = () => {
-      pipe(range(1, 5), fold(null as any));
+      pipe(range(1, 5), t.fn(null as any));
     };
 
     // assert
@@ -149,127 +231,18 @@ describe("#fold", () => {
 
   describe("when passed as regular concat and initial", () => {
     // act
-    const actual = pipe(range(1, 5), fold(monoidSum_.empty, monoidSum_.concat));
+    const actual = pipe(t.sut, t.fn(monoid.empty, monoid.concat));
 
     // assert
-    test("then it works as a regular fold", () => {
-      expect(actual).toBe(15);
-    });
-  });
-});
-
-describe("#reduce", () => {
-  describe("when a semigroup is passed", () => {
-    // act
-    const actual = pipe(range(1, 5), reduce(monoidSum_));
-
-    // assert
-    test("then it works as a regular reduce", () => {
-      expect(actual).toBe(15);
-    });
-  });
-
-  describe("when passed as regular concat", () => {
-    // act
-    const actual = pipe(range(1, 5), reduce(monoidSum_.concat));
-
-    // assert
-    test("then it works as a regular reduce", () => {
-      expect(actual).toBe(15);
+    test(`then it works as a regular ${name}`, () => {
+      expect(actual).toEqual(t.actual);
     });
   });
 
   describe("when empty iterable", () => {
-    const actual = reduce([], monoidSum_);
+    const actual = t.fn([], monoid);
     test("then is empty", () => {
-      expect(actual).toEqual([]);
+      expect(actual).toEqual(t.actualInitial);
     });
   });
-});
-
-describe("#reduceRight", () => {
-  describe("when a semigroup is passed", () => {
-    // act
-    const actual = reduceRight("abcd", monoidStrConcat_);
-
-    // assert
-    test("then it works as a regular reduce", () => {
-      expect(actual).toBe("dcba");
-    });
-  });
-
-  describe("when passed as regular concat", () => {
-    // act
-    const actual = reduceRight("abcd", monoidStrConcat_.concat);
-
-    // assert
-    test("then it works as a regular reduce", () => {
-      expect(actual).toBe("dcba");
-    });
-  });
-
-  describe("when empty iterable", () => {
-    const actual = reduceRight([], monoidStrConcat_);
-    test("then is empty", () => {
-      expect(actual).toEqual([]);
-    });
-  });
-});
-
-describe("#scan", () => {
-  describe("when a semigroup is passed", () => {
-    // act
-    const actual = scan("abcd", monoidStrConcat_);
-
-    // assert
-    test("then it works as a regular scan", () => {
-      expect(actual).toEqual(["a", "ab", "abc", "abcd"]);
-    });
-  });
-
-  describe("when passed as regular concat", () => {
-    // act
-    const actual = scan("abcd", monoidStrConcat_);
-
-    // assert
-    test("then it works as a regular scan", () => {
-      expect(actual).toEqual(["a", "ab", "abc", "abcd"]);
-    });
-  });
-
-  describe("when empty iterable", () => {
-    const actual = scan([], monoidSum_);
-    test("then is empty", () => {
-      expect(actual).toEqual([]);
-    });
-  });
-});
-
-describe("#scanFold", () => {
-  describe("when a semigroup is passed", () => {
-    // act
-    const actual = scanFold("abcd", monoidStrConcat_);
-
-    // assert
-    test("then it works as a regular scan", () => {
-      expect(actual).toEqual(["", "a", "ab", "abc", "abcd"]);
-    });
-  });
-
-  describe("when passed as regular concat", () => {
-    // act
-    const actual = scanFold("abcd", monoidStrConcat_);
-
-    // assert
-    test("then it works as a regular scan", () => {
-      expect(actual).toEqual(["", "a", "ab", "abc", "abcd"]);
-    });
-  });
-
-  describe("when empty iterable", () => {
-    const actual = scanFold([], monoidStrConcat_);
-    test("then is empty", () => {
-      expect(actual).toEqual([""]);
-    });
-  });
-});
+}

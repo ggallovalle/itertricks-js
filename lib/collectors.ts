@@ -141,9 +141,14 @@ export const fold: Fold = function curried(
     }
     return curried(source.empty, source.concat);
   }
-  if (arguments.length === 2) {
+
+  if (arguments.length === 2 && isMonoid(initial)) {
+    concat = initial.concat;
+    initial = initial.empty;
+  } else if (arguments.length === 2) {
     return (_source: any) => curried(_source, source, initial);
   }
+
   let accumulator = initial;
   for (const element of source) {
     accumulator = concat(accumulator, element);
@@ -263,6 +268,8 @@ export const scanFold: Fold = function curried(
   if (arguments.length === 2 && isMonoid(initial)) {
     concat = initial.concat;
     initial = initial.empty;
+  } else if (arguments.length === 2) {
+    return (_source: any) => curried(_source, source, initial);
   }
 
   let accumulator = initial;
@@ -337,6 +344,25 @@ export const scan: Reduce = function curried(source: any, concat?: any): any {
  * @param source
  * @param concat
  */
-export const scanRight: Reduce = (source: any, concat?: any): any => {
-  return;
+export const scanRight: Reduce = function curried(
+  source: any,
+  concat?: any
+): any {
+  if (arguments.length === 1) {
+    return (_source: any) => curried(_source, source);
+  }
+
+  concat = isSemigroup(concat) ? concat.concat : concat;
+  const iter = getIterator(source);
+  let first = iter.next();
+  let accumulator = first.value;
+  const result = [];
+  if (!isNull(accumulator)) result.push(accumulator);
+  first = iter.next();
+  while (!first.done) {
+    accumulator = concat(accumulator, first.value);
+    result.push(accumulator);
+    first = iter.next();
+  }
+  return result;
 };
