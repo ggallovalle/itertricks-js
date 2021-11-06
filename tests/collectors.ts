@@ -12,6 +12,7 @@ import {
   reduceRight,
   repeat,
   scan,
+  scanFold,
   take,
 } from "../lib";
 import { isArray, isSemigroup } from "../lib/internal/is";
@@ -237,9 +238,38 @@ describe("#scan", () => {
   });
 
   describe("when empty iterable", () => {
-    const actual = reduce([], monoidSum_);
+    const actual = scan([], monoidSum_);
     test("then is empty", () => {
       expect(actual).toEqual([]);
+    });
+  });
+});
+
+describe("#scanFold", () => {
+  describe("when a semigroup is passed", () => {
+    // act
+    const actual = scanFold("abcd", monoidStrConcat_);
+
+    // assert
+    test("then it works as a regular scan", () => {
+      expect(actual).toEqual(["", "a", "ab", "abc", "abcd"]);
+    });
+  });
+
+  describe("when passed as regular concat", () => {
+    // act
+    const actual = scanFold("abcd", monoidStrConcat_);
+
+    // assert
+    test("then it works as a regular scan", () => {
+      expect(actual).toEqual(["", "a", "ab", "abc", "abcd"]);
+    });
+  });
+
+  describe("when empty iterable", () => {
+    const actual = scanFold([], monoidStrConcat_);
+    test("then is empty", () => {
+      expect(actual).toEqual([""]);
     });
   });
 });

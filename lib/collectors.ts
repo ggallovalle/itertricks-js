@@ -248,12 +248,31 @@ export const reduceRight: Reduce = function curried(
  * @param initial
  * @param concat
  */
-export const scanFold: Fold = (
+export const scanFold: Fold = function curried(
   source: any,
   initial?: any,
   concat?: any
-): any => {
-  return;
+): any {
+  if (arguments.length === 1) {
+    if (!isMonoid(source)) {
+      throw new NotMonoidError();
+    }
+    return (_source: any) => curried(_source, source.empty, source.concat);
+  }
+
+  if (arguments.length === 2 && isMonoid(initial)) {
+    concat = initial.concat;
+    initial = initial.empty;
+  }
+
+  let accumulator = initial;
+  const result = [];
+  result.push(accumulator);
+  for (const element of source) {
+    accumulator = concat(accumulator, element);
+    result.push(accumulator);
+  }
+  return result;
 };
 
 /**
