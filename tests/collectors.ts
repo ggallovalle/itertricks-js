@@ -9,6 +9,7 @@ import {
   newGenerator,
   range,
   reduce,
+  reduceRight,
   repeat,
   take,
 } from "../lib";
@@ -116,6 +117,11 @@ const monoidSum_: Monoid<number> = {
   concat: (a, b) => a + b,
 };
 
+const monoidStrConcat_: Monoid<string> = {
+  empty: "",
+  concat: (a, b) => a + b,
+};
+
 describe("#fold", () => {
   describe("when a monoid is passed", () => {
     // act
@@ -174,7 +180,36 @@ describe("#reduce", () => {
   describe("when empty iterable", () => {
     const actual = reduce([], monoidSum_);
     test("then is empty", () => {
-      expect(actual).toBeUndefined();
+      expect(actual).toEqual([]);
+    });
+  });
+});
+
+describe("#reduceRight", () => {
+  describe("when a semigroup is passed", () => {
+    // act
+    const actual = reduceRight("abcd", monoidStrConcat_);
+
+    // assert
+    test("then it works as a regular reduce", () => {
+      expect(actual).toBe("dcba");
+    });
+  });
+
+  describe("when passed as regular concat", () => {
+    // act
+    const actual = reduceRight("abcd", monoidStrConcat_.concat);
+
+    // assert
+    test("then it works as a regular reduce", () => {
+      expect(actual).toBe("dcba");
+    });
+  });
+
+  describe("when empty iterable", () => {
+    const actual = reduceRight([], monoidStrConcat_);
+    test("then is empty", () => {
+      expect(actual).toEqual([]);
     });
   });
 });

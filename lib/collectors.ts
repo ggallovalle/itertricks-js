@@ -188,13 +188,13 @@ type Reduce = {
  */
 export const reduce: Reduce = function curried(source: any, concat?: any): any {
   if (arguments.length === 1) {
-    concat = isSemigroup(source) ? source.concat : source;
-    return (_source: any) => curried(_source, concat);
+    return (_source: any) => curried(_source, source);
   }
 
+  concat = isSemigroup(concat) ? concat.concat : concat;
   const iter = getIterator(source);
   let first = iter.next();
-  let accumulator = first.value;
+  let accumulator = first.value ?? [];
   first = iter.next();
   while (!first.done) {
     accumulator = concat(accumulator, first.value);
@@ -216,8 +216,18 @@ export const reduce: Reduce = function curried(source: any, concat?: any): any {
  * @param source
  * @param concat
  */
-export const reduceRight: Reduce = (source: any, concat?: any): any => {
-  return;
+export const reduceRight: Reduce = function curried(
+  source: any,
+  concat?: any
+): any {
+  if (arguments.length === 1) {
+    return (_source: any) => curried(_source, source);
+  }
+  concat = isSemigroup(concat) ? concat.concat : concat;
+  const arr = asArray(source);
+  return arr.length === 0
+    ? []
+    : arr.reduceRight((prev, curr) => concat(prev, curr));
 };
 
 /**
