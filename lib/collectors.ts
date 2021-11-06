@@ -2,7 +2,13 @@ import { add } from "./internal/mathtools";
 import { upsertMap } from "./internal/maptools";
 import { Monoid, Predicate, Semigroup } from "./internal/types";
 import { curry2, curry3 } from "./internal/functools";
-import { getIterator, isFunction, isMonoid, isSemigroup } from "./internal/is";
+import {
+  getIterator,
+  isFunction,
+  isMonoid,
+  isNull,
+  isSemigroup,
+} from "./internal/is";
 import { NotMonoidError } from "./internal/errors";
 
 /**
@@ -281,8 +287,24 @@ export const scanFoldRight: Fold = (
  * @param source
  * @param concat
  */
-export const scan: Reduce = (source: any, concat?: any): any => {
-  return;
+export const scan: Reduce = function curried(source: any, concat?: any): any {
+  if (arguments.length === 1) {
+    return (_source: any) => curried(_source, source);
+  }
+
+  concat = isSemigroup(concat) ? concat.concat : concat;
+  const iter = getIterator(source);
+  let first = iter.next();
+  let accumulator = first.value;
+  const result = [];
+  if (!isNull(accumulator)) result.push(accumulator);
+  first = iter.next();
+  while (!first.done) {
+    accumulator = concat(accumulator, first.value);
+    result.push(accumulator);
+    first = iter.next();
+  }
+  return result;
 };
 
 /**
