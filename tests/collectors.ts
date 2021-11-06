@@ -12,6 +12,7 @@ import {
   repeat,
   scan,
   scanFold,
+  scanFoldRight,
   take,
 } from "../lib";
 import { isArray } from "../lib/internal/is";
@@ -161,6 +162,15 @@ describe("#scanFold", () => {
     fn: scanFold,
     sut: "abcd",
     actual: ["", "a", "ab", "abc", "abcd"],
+    actualInitial: [""],
+  });
+});
+
+describe("#scanFoldRight", () => {
+  _testFold("scanFoldRight", _monoidStrConcat, {
+    fn: scanFoldRight,
+    sut: "abcd",
+    actual: ["", "d", "dc", "dcb", "dcba"],
     actualInitial: [""],
   });
 });
