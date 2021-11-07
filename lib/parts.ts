@@ -37,6 +37,15 @@ type TakeWhile = {
 
 /**
  * Take the first elements which satisfy the predicate.
+ *
+ * @category parts
+ *
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ *
+ * @param source
+ * @param predicate
  */
 export const takeWhile: TakeWhile = curry2(function* (
   source: any,
@@ -51,13 +60,51 @@ export const takeWhile: TakeWhile = curry2(function* (
 });
 
 /**
- * Drop the first `n` elements.gt
+ * Drop the first `n` elements.
+ *
+ * @category parts
+ *
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ *
+ * @param source
+ * @param n
  */
 export const drop: Take = curry2(function* (source: any, n: any) {
   let counter = 0;
   for (const element of source) {
     counter++;
     if (counter <= n) {
+      continue;
+    }
+    yield element;
+  }
+});
+
+/**
+ * Drop elements until the predicate is not satisfied.
+ *
+ * @category parts
+ *
+ * @public
+ * @since 1.0.0
+ * @version 1.0.0
+ *
+ * @param source
+ * @param predicate
+ */
+export const dropWhile: TakeWhile = curry2(function* (
+  source: any,
+  predicate: any
+) {
+  let keepDropping = true;
+  for (const element of source) {
+    if (keepDropping) {
+      if (!predicate(element)) {
+        keepDropping = false;
+        yield element;
+      }
       continue;
     }
     yield element;

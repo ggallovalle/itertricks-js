@@ -4,6 +4,7 @@ import {
   chunked,
   count,
   drop,
+  dropWhile,
   empty,
   range,
   take,
@@ -72,6 +73,32 @@ describe("#drop", () => {
     // assert
     test("then len of actual is len of sut - `n`", () => {
       expect(actual).toHaveLength(howMany - n);
+    });
+  });
+});
+
+describe("#dropWhile", () => {
+  describe("when some elements match", () => {
+    // arrange
+    const sut = [1, 2, 3, 4, 5];
+    const greaterThan2 = [3, 4, 5];
+    // act
+    const actual = pipe(dropWhile(sut, lt(3)), asArray);
+
+    // assert
+    test("then the len will be as much as the matched elements len", () => {
+      expect(actual).toEqual(greaterThan2);
+    });
+  });
+
+  describe("when none of the elements satisfy the predicate", () => {
+    // act
+    const howMany = 5;
+    const actual = pipe(range(howMany - 1), dropWhile(gt(25)), asArray);
+
+    // assert
+    test("then yield all the source", () => {
+      expect(actual).toHaveLength(howMany);
     });
   });
 });

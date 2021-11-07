@@ -1,4 +1,4 @@
-export { take, takeWhile, drop, chunked, windowed } from "./parts";
+export { take, takeWhile, drop, dropWhile, chunked, windowed } from "./parts";
 export { range, newGenerator, count, cycle, repeat } from "./constructors";
 export {
   asCount,
