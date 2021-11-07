@@ -5,6 +5,7 @@ import {
   asCount,
   asCounter,
   fold,
+  foldRight,
   groupBy,
   newGenerator,
   range,
@@ -155,6 +156,15 @@ describe("#fold", () => {
     sut: pipe(range(1, 5), asArray),
     actual: 15,
     actualInitial: _monoidSum.empty,
+  });
+});
+
+describe("#foldRight", () => {
+  _testFold("foldRight", _monoidStrConcat, {
+    fn: foldRight,
+    sut: "abcd",
+    actual: "dcba",
+    actualInitial: _monoidStrConcat.empty,
   });
 });
 

@@ -182,13 +182,26 @@ export const fold: Fold = function curried(
  * @param initial
  * @param concat
  */
-export const foldRight: Fold = (
+export const foldRight: Fold = function curried(
   source: any,
   initial?: any,
   concat?: any
-): any => {
-  // TODO
-  return;
+): any {
+  if (arguments.length === 1) {
+    if (!isMonoid(source)) {
+      throw new NotMonoidError();
+    }
+    return curried(source.empty, source.concat);
+  }
+
+  if (arguments.length === 2 && isMonoid(initial)) {
+    concat = initial.concat;
+    initial = initial.empty;
+  } else if (arguments.length === 2) {
+    return (_source: any) => curried(_source, source, initial);
+  }
+
+  return asArray(source).reduceRight(concat, initial);
 };
 
 type Reduce = {
