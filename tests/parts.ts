@@ -3,6 +3,7 @@ import {
   asArray,
   chunked,
   count,
+  drop,
   empty,
   range,
   take,
@@ -46,6 +47,31 @@ describe("#takeWhile", () => {
     // assert
     test("then do not yield", () => {
       expect(actual).toHaveLength(0);
+    });
+  });
+});
+
+describe("#drop", () => {
+  describe("when `n` is more than len source", () => {
+    // act
+    const actual = pipe(range(1, 3), drop(10), asArray);
+
+    // assert
+    test("then do not yield anything", () => {
+      expect(actual).toHaveLength(0);
+    });
+  });
+
+  describe("when `n` is less than len of source", () => {
+    // arrange
+    const n = 3;
+    const howMany = 10;
+    // act
+    const actual = pipe(range(1, howMany), drop(n), asArray);
+
+    // assert
+    test("then len of actual is len of sut - `n`", () => {
+      expect(actual).toHaveLength(howMany - n);
     });
   });
 });

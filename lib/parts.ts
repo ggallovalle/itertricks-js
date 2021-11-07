@@ -36,7 +36,7 @@ type TakeWhile = {
 };
 
 /**
- * Take the first elements who satisfy the predicate.
+ * Take the first elements which satisfy the predicate.
  */
 export const takeWhile: TakeWhile = curry2(function* (
   source: any,
@@ -45,6 +45,20 @@ export const takeWhile: TakeWhile = curry2(function* (
   for (const element of source) {
     if (!predicate(element)) {
       break;
+    }
+    yield element;
+  }
+});
+
+/**
+ * Drop the first `n` elements.gt
+ */
+export const drop: Take = curry2(function* (source: any, n: any) {
+  let counter = 0;
+  for (const element of source) {
+    counter++;
+    if (counter <= n) {
+      continue;
     }
     yield element;
   }
