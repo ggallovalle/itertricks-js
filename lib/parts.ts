@@ -1,5 +1,6 @@
 import { isNumber } from "./internal/is";
 import { curry2, curry3 } from "./internal/functools";
+import { Predicate } from "./internal/types";
 
 type Take = {
   (n: number): <T>(source: Iterable<T>) => Generator<T>;
@@ -26,6 +27,26 @@ export const take: Take = curry2(function* (source: any, n: any) {
     }
     yield element;
     counter++;
+  }
+});
+
+type TakeWhile = {
+  <T>(predicate: Predicate<T>): (source: Iterable<T>) => Generator<T>;
+  <T>(source: Iterable<T>, predicate: Predicate<T>): Generator<T>;
+};
+
+/**
+ * Take the first elements who satisfy the predicate.
+ */
+export const takeWhile: TakeWhile = curry2(function* (
+  source: any,
+  predicate: any
+) {
+  for (const element of source) {
+    if (!predicate(element)) {
+      break;
+    }
+    yield element;
   }
 });
 

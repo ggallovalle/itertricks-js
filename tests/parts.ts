@@ -6,10 +6,12 @@ import {
   empty,
   range,
   take,
+  takeWhile,
   windowed,
 } from "../lib";
 import { first, last, len, nth } from "../lib/internal/len";
 import { pipe } from "../lib/internal/functools";
+import { gt, lt } from "../lib/internal/mathtools";
 
 describe("#take", () => {
   describe("when there source len is less than what is taken", () => {
@@ -19,6 +21,31 @@ describe("#take", () => {
     // assert
     test("then what is taken len is source len", () => {
       expect(len(actual)).toBe(11);
+    });
+  });
+});
+
+describe("#takeWhile", () => {
+  describe("when some elements match", () => {
+    // arrange
+    const sut = [1, 2, 3, 4, 5];
+    const greaterThan3 = sut.filter(lt(3));
+    // act
+    const actual = pipe(takeWhile(sut, lt(3)), asArray);
+
+    // assert
+    test("then the len will be as much as the matched elements len", () => {
+      expect(len(greaterThan3)).toBe(len(actual));
+    });
+  });
+
+  describe("when none of the elements satisfy the predicate", () => {
+    // act
+    const actual = pipe(range(5), takeWhile(gt(25)), asArray);
+
+    // assert
+    test("then do not yield", () => {
+      expect(actual).toHaveLength(0);
     });
   });
 });
