@@ -1,7 +1,7 @@
 import { add } from "./internal/mathtools";
 import { upsertMap } from "./internal/maptools";
 import { Monoid, Predicate, Semigroup } from "./internal/types";
-import { curry2, curry3 } from "./internal/functools";
+import { curry2, curry3, identity } from "./internal/functools";
 import {
   getIterator,
   isFunction,
@@ -67,15 +67,15 @@ export function asCounter<T>(source: Iterable<T>): Map<T, number> {
 }
 
 type GroupBy = {
-  <TValue, TKey = TValue, TTransformed = TValue>(
+  <TKey, TValue, TTransformed = TValue>(
     keySelector: (element: TValue) => TKey,
     elementTransform?: (element: TValue) => TTransformed
-  ): (source: Iterable<TKey>) => Map<TKey, TValue>;
-  <TValue, TKey = TValue, TTransformed = TValue>(
-    source: Iterable<TKey>,
+  ): (source: Iterable<TValue>) => Map<TKey, TTransformed>;
+  <TKey, TValue, TTransformed = TValue>(
+    source: Iterable<TValue>,
     keySelector: (element: TValue) => TKey,
     elementTransform?: (element: TValue) => TTransformed
-  ): Map<TKey, TValue>;
+  ): Map<TKey, TTransformed>;
 };
 
 /**
@@ -94,7 +94,19 @@ type GroupBy = {
 export const groupBy: GroupBy = curry3(
   isFunction,
   (source: any, keySelector: any, elementTransform?: any) => {
-    return;
+    const result = new Map();
+    if (isNull(elementTransform)) {
+      elementTransform = identity;
+    }
+    for (const element of source) {
+      const key = keySelector(element);
+      const value = elementTransform(element);
+      upsertMap(result, key, [value], (acc) => {
+        acc.push(value);
+        return acc;
+      });
+    }
+    return result;
   }
 );
 
@@ -175,6 +187,7 @@ export const foldRight: Fold = (
   initial?: any,
   concat?: any
 ): any => {
+  // TODO
   return;
 };
 

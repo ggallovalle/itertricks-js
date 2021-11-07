@@ -5,6 +5,7 @@ import {
   asCount,
   asCounter,
   fold,
+  groupBy,
   newGenerator,
   range,
   reduce,
@@ -172,6 +173,78 @@ describe("#scanFoldRight", () => {
     sut: "abcd",
     actual: ["", "d", "dc", "dcb", "dcba"],
     actualInitial: [""],
+  });
+});
+
+describe("#groupBy", () => {
+  type _Person = {
+    name: string;
+    age: number;
+  };
+  const people: _Person[] = [
+    {
+      age: 10,
+      name: "a",
+    },
+    {
+      age: 20,
+      name: "b",
+    },
+    {
+      age: 30,
+      name: "c",
+    },
+    {
+      age: 40,
+      name: "e",
+    },
+    {
+      age: 50,
+      name: "f",
+    },
+    {
+      age: 60,
+      name: "g",
+    },
+  ];
+  describe("when key selector returns all different values", () => {
+    // act
+    const actual = groupBy(people, (it) => it.age);
+
+    // assert
+    test("then it has as n different keys", () => {
+      expect(asArray(actual.keys()).length).toBe(6);
+    });
+    test("and it has the same elements", () => {
+      const elements = asArray(actual.values()).flat();
+      expect(elements).toEqual(people);
+    });
+  });
+
+  describe("when key selector divides in two groups", () => {
+    // act
+    const actual = groupBy(people, (it) => (it.age <= 30 ? "young" : "old"));
+
+    test("then each group contains only the ones that correspond to it", () => {
+      const groupYoung = people.filter((it) => it.age <= 30);
+      const groupOld = people.filter((it) => it.age > 30);
+      expect(actual.get("young")).toEqual(groupYoung);
+      expect(actual.get("old")).toEqual(groupOld);
+    });
+  });
+
+  describe("when an element transform is passed", () => {
+    // arrange
+    const names = people.map((it) => it.name);
+    // act
+    const actual = groupBy(
+      people,
+      (it) => it.age,
+      (it) => it.name
+    );
+    test("then it does transform each input", () => {
+      expect(asArray(actual.values()).flat()).toEqual(names);
+    });
   });
 });
 
